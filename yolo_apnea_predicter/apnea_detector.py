@@ -27,6 +27,7 @@ class ApneaDetector:
     def predict_from_index(self,index):
         unchecked_duration = self.signal_size - self.signal_index
         if unchecked_duration < self.sliding_window_duration:
+            ...
             
 
 
