@@ -7,7 +7,7 @@ import numpy as np
 
 class TestApneaPredictor(TestCase):
     def setUp(self):
-        test_signal = np.load("shhs1-200703-signal.npz")
+        test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
         self.thor_signal = test_signal["thor_res"]
         self.apnea_predictor = ApneaPredictor()

@@ -7,15 +7,17 @@ import configparser
 class TestYoloSignalDetector(TestCase):
 
     def setUp(self):
-        test_signal = np.load("shhs1-200703-signal.npz")
+        test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
 
         config = configparser.ConfigParser()
         config.read("../yolo_apnea_predicter/config.ini")
-        self.sliding_window = int(config["DEFAULT"]["SlidingPredictionWindowOverlap"])
+        self.prediction_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
 
         self.yolo = Yolo.YoloSignalDetector()
 
     def test_detect(self):
-        self.yolo.detect(self.abdo_signal[0:self.sliding_window])
+        print("test")
+        print(self.abdo_signal[89193:89193+self.prediction_duration])
+        self.yolo.detect(self.abdo_signal[89193:89193+self.prediction_duration])
         self.fail()
