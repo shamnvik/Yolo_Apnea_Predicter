@@ -9,8 +9,9 @@ class Predictions:
         config.read("../yolo_apnea_predicter/config.ini")
         self.sliding_window_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
 
+
     def insert_new_prediction(self,prediction):
-        raise NotImplementedError("not implemented yet")
+        self.predictions.append(prediction)
 
     def get_unread_predictions(self):
         raise NotImplementedError("unread predictions not implemented yet")
@@ -32,7 +33,14 @@ class Predictions:
             new_prediction = {"start":start,
                               "end":end,
                               "confidence":confidence}
-            self.predictions.append(new_prediction)
+
+            self.insert_new_prediction(new_prediction)
+
+    def clean_predictions(self):
+        self._sort_predictions()
+
+    def _sort_predictions(self):
+        self.predictions.sort(key=lambda x : x["start"])
 
 
 
