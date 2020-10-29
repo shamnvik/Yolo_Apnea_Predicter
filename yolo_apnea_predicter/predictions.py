@@ -1,5 +1,7 @@
 import configparser
 import numpy as np
+from io import BytesIO
+from yattag import Doc, indent
 
 class Predictions:
 
@@ -43,6 +45,51 @@ class Predictions:
     def _sort_predictions(self):
         self.predictions.sort(key=lambda x : x["start"])
 
+
+    def get_xml(self,threshold=0):
+
+        doc, tag, text = Doc().tagtext()
+        doc.asis('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
+
+        with tag('PSGAnnotation'):
+            with tag('SoftwareVersion'):
+                text("Compumedics")
+            with tag('EpochLength'):
+                text("30")
+
+            with tag("ScoredEvents"):
+                start = 0
+                end = 0
+                for i,confidence in enumerate(self.predictions):
+
+                    if start != 0:
+                        if confidence == 0:
+                            end = i
+                            with tag("ScoredEvent"):
+                                with tag("EventType"):
+                                    text("Respiratory|Respiratory")
+                                with tag("EventConcept"):
+                                    text("Obstructive apnea|ObstructiveApnea")
+                                with tag("Start"):
+                                    text(start)
+                                with tag("Duration"):
+                                    text(end-start)
+                                with tag("SignalLocation"):
+                                    text("ABDO RES")
+                            start = 0
+                            end = 0
+
+                    elif confidence > threshold:
+                        start = i
+
+
+        result = indent(
+            doc.getvalue(),
+            indentation=' ' * 4,
+            newline='\r\n'
+        )
+
+        print(result)
 
 
 
