@@ -1,17 +1,20 @@
 import configparser
-
+import numpy as np
 
 class Predictions:
 
     def __init__(self):
-        self.predictions = []
+        self.predictions = np.zeros(1500) #Todo initalize with larger array and copy intoinstead
         config = configparser.ConfigParser()
         config.read("../yolo_apnea_predicter/config.ini")
         self.sliding_window_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
 
 
     def insert_new_prediction(self,prediction):
-        self.predictions.append(prediction)
+        print("inserting new prediction")
+        print(self.predictions.shape)
+        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"], out=self.predictions[prediction["start"]:prediction["end"]])
+
 
     def get_unread_predictions(self):
         raise NotImplementedError("unread predictions not implemented yet")
@@ -36,8 +39,6 @@ class Predictions:
 
             self.insert_new_prediction(new_prediction)
 
-    def clean_predictions(self):
-        self._sort_predictions()
 
     def _sort_predictions(self):
         self.predictions.sort(key=lambda x : x["start"])
