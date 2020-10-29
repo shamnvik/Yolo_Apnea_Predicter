@@ -44,7 +44,6 @@ class YoloSignalDetector:
 
         predictions = []
 
-        print("here")
 
 
         for confidence,prediction in zip(scores,boxes):
