@@ -1,10 +1,10 @@
 import os
 
-class Image_config():
+class Image_config:
     sliding_window_duration = 900
     sliding_window_overlap = 450
 
-class YOLO_config():
+class YOLO_config:
     size = 416
     weights = "weights/yolov3-416"
     weights = os.path.abspath(os.path.join(os.path.dirname( __file__ ),weights))

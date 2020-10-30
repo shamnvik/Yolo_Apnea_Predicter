@@ -13,9 +13,9 @@ else:
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
        tf.config.experimental.set_memory_growth(physical_devices[0], True)
-    import yolo_apnea_predicter.tensorflow_yolov4.core.utils as utils
+    from .tensorflow_yolov4.core import utils
 
-from yolo_apnea_predicter.config import YOLO_config
+from .config import YOLO_config
 
 class YoloSignalDetector:
 

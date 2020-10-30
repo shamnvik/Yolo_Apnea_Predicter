@@ -1,6 +1,6 @@
 import numpy as np
 from yattag import Doc, indent
-from yolo_apnea_predicter.config import Image_config
+from .config import Image_config
 
 class Predictions:
 
