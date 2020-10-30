@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # coding=utf-8
 from easydict import EasyDict as edict
-from yolo_apnea_predicter.config import YOLO_config
+from ...config import YOLO_config
 pred_classes = YOLO_config.pred_names
 
 __C                           = edict()

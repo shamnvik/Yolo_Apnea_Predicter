@@ -3,7 +3,7 @@ import random
 import colorsys
 import numpy as np
 import tensorflow as tf
-from yolo_apnea_predicter.tensorflow_yolov4.core.config import cfg
+from .config import cfg
 
 def load_freeze_layer(model='yolov4', tiny=False):
     if tiny:
