@@ -1,8 +1,8 @@
 import numpy as np
-import configparser
 import uuid
 import matplotlib.pyplot as plt
 import cv2
+from yolo_apnea_predicter.config import Image_config
 
 from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
 from yolo_apnea_predicter.predictions import Predictions
@@ -10,10 +10,8 @@ from yolo_apnea_predicter.predictions import Predictions
 class ApneaDetector:
 
     def __init__(self,signal=None):
-        config = configparser.ConfigParser()
-        config.read("../yolo_apnea_predicter/config.ini")
-        self.sliding_window_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
-        self.sliding_window_overlap = int(config["DEFAULT"]["SlidingPredictionWindowOverlap"])
+        self.sliding_window_duration = Image_config.sliding_window_duration
+        self.sliding_window_overlap = Image_config.sliding_window_overlap
 
         self.signal_index = 0
         self.signal_length = 0
@@ -119,4 +117,3 @@ class ApneaDetector:
         """
         ...
         return
-

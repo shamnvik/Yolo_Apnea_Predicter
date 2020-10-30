@@ -1,7 +1,8 @@
 from unittest import TestCase
 import yolo_apnea_predicter.yolo_signal_detector as Yolo
 import numpy as np
-import configparser
+
+from yolo_apnea_predicter.config import Image_config
 
 
 class TestYoloSignalDetector(TestCase):
@@ -10,9 +11,7 @@ class TestYoloSignalDetector(TestCase):
         test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
 
-        config = configparser.ConfigParser()
-        config.read("../yolo_apnea_predicter/config.ini")
-        self.prediction_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
+        self.prediction_duration = Image_config.sliding_window_duration
 
         self.yolo = Yolo.YoloSignalDetector()
 

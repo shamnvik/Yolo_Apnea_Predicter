@@ -1,15 +1,12 @@
-import configparser
 import numpy as np
-from io import BytesIO
 from yattag import Doc, indent
+from yolo_apnea_predicter.config import Image_config
 
 class Predictions:
 
     def __init__(self):
         self.predictions = np.zeros(1500) #Todo initalize with larger array and copy intoinstead
-        config = configparser.ConfigParser()
-        config.read("../yolo_apnea_predicter/config.ini")
-        self.sliding_window_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
+        self.sliding_window_duration = Image_config.sliding_window_duration
 
 
     def insert_new_prediction(self,prediction):
@@ -88,8 +85,7 @@ class Predictions:
             indentation=' ' * 4,
             newline='\r\n'
         )
-
-        print(result)
+        return result
 
 
 

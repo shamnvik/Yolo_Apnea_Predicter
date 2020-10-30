@@ -1,5 +1,3 @@
-import configparser
-import os
 import cv2
 import numpy as np
 from PIL import Image
@@ -17,17 +15,16 @@ else:
        tf.config.experimental.set_memory_growth(physical_devices[0], True)
     import yolo_apnea_predicter.tensorflow_yolov4.core.utils as utils
 
+from yolo_apnea_predicter.config import YOLO_config
+
 class YoloSignalDetector:
 
     def __init__(self):
+        self.input_size = YOLO_config.size
+        self.iou = YOLO_config.iou
+        self.score = YOLO_config.score
 
-        config = configparser.ConfigParser()
-        config.read("../yolo_apnea_predicter/config.ini")
-        self.input_size = int(config["YOLO"]["size"])
-        self.iou = float(config["YOLO"]["iou"])
-        self.score = float(config["YOLO"]["score"])
-
-        self.weights = f'{os.getcwd()}{os.sep}..{os.sep}{config["YOLO"]["weights"]}'
+        self.weights = YOLO_config.weights
 
         if not use_pickle_data:
             self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])

@@ -1,16 +1,14 @@
 from unittest import TestCase
 from yolo_apnea_predicter.predictions import Predictions
-import numpy as np
-import configparser
+from xml.dom import minidom
+from yolo_apnea_predicter.config import Image_config
 
 
 class TestPredictions(TestCase):
 
     def setUp(self):
         self.predictions = Predictions()
-        config = configparser.ConfigParser()
-        config.read("../yolo_apnea_predicter/config.ini")
-        self.sliding_window_duration = int(config["DEFAULT"]["SlidingPredictionWindowDuration"])
+        self.sliding_window_duration = Image_config.sliding_window_duration
 
         self.non_overlap_predictions = [{"left": 0.2,
                                          "right": 0.4,
@@ -99,9 +97,8 @@ class TestPredictions(TestCase):
     def test_get_xml(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
 
-        self.predictions.get_xml(0)
-
-        self.fail()
+        xml = self.predictions.get_xml(0)
+        minidom.parseString(xml)
 
 
 

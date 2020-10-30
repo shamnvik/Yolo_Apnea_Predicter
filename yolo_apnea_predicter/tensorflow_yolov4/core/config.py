@@ -1,14 +1,8 @@
 #! /usr/bin/env python
 # coding=utf-8
 from easydict import EasyDict as edict
-import configparser
-import os
-
-config = configparser.ConfigParser()
-config.read("../yolo_apnea_predicter/config.ini")
-pred_classes = f'{os.getcwd()}{os.sep}..{os.sep}{config["YOLO"]["pred_names"]}'
-
-
+from yolo_apnea_predicter.config import YOLO_config
+pred_classes = YOLO_config.pred_names
 
 __C                           = edict()
 # Consumers can get config by: from config import cfg
