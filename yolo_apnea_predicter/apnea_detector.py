@@ -3,9 +3,9 @@ import uuid
 import matplotlib.pyplot as plt
 import cv2
 
-from .config import Image_config
-from .yolo_signal_detector import YoloSignalDetector
-from .predictions import Predictions
+from yolo_apnea_predicter.config import Image_config
+from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
+from yolo_apnea_predicter.predictions import Predictions
 
 class ApneaDetector:
 
@@ -117,3 +117,4 @@ class ApneaDetector:
         """
         ...
         return
+

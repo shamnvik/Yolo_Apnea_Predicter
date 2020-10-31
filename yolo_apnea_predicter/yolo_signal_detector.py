@@ -2,6 +2,11 @@ import cv2
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import os
+
+
+#TODO Clean up this ugly shit
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
 
 use_pickle_data = False
 
@@ -10,16 +15,24 @@ if use_pickle_data:
 else:
     import tensorflow as tf
     from tensorflow.python.saved_model import tag_constants
+
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
-       tf.config.experimental.set_memory_growth(physical_devices[0], True)
+        tf.config.experimental.set_memory_growth(physical_devices[0], True)
     from .tensorflow_yolov4.core import utils
 
 from .config import YOLO_config
 
+
+
+
 class YoloSignalDetector:
 
     def __init__(self):
+
+
+
+
         self.input_size = YOLO_config.size
         self.iou = YOLO_config.iou
         self.score = YOLO_config.score
