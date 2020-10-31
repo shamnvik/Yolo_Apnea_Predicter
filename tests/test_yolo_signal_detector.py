@@ -16,6 +16,5 @@ class TestYoloSignalDetector(TestCase):
         self.yolo = Yolo.YoloSignalDetector()
 
     def test_detect(self):
-        print("test")
         self.yolo.detect(self.abdo_signal[89193:89193+self.prediction_duration])
         self.fail()

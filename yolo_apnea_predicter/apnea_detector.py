@@ -9,7 +9,7 @@ from yolo_apnea_predicter.predictions import Predictions
 
 class ApneaDetector:
 
-    def __init__(self,signal=None):
+    def __init__(self):
         self.sliding_window_duration = Image_config.sliding_window_duration
         self.sliding_window_overlap = Image_config.sliding_window_overlap
 
@@ -47,6 +47,7 @@ class ApneaDetector:
             signal_to_check[-unchecked_duration:] = self.signal
             self.predict_image(signal_to_check,unchecked_duration - self.sliding_window_duration)
             self.signal_index += min(unchecked_duration,self.sliding_window_overlap)
+            unchecked_duration -= unchecked_duration
 
         elif unchecked_duration >= self.sliding_window_duration:
             signal_to_check[:] = self.signal[self.signal_index:self.signal_index + self.sliding_window_duration]
@@ -55,28 +56,40 @@ class ApneaDetector:
             unchecked_duration -= self.sliding_window_overlap
 
         elif self.signal_length < self.sliding_window_duration:
+            print("DOES THIS HAPPEN?")
             signal_to_check[-self.signal_length:] = self.signal[:]
             self.signal_index += min(unchecked_duration, self.sliding_window_overlap)
 
         elif unchecked_duration < self.sliding_window_duration: #This should be the remainder of the signal
+            print("LAST ELIF?")
+            print("Unchecked duration is:")
+            print(unchecked_duration)
+            print("signal index")
+            print(self.signal_index)
+            print("signal_length")
+            print(self.signal_length)
+
             signal_to_check[:] = self.signal[-self.sliding_window_duration:]
             self.predict_image(signal_to_check,-self.sliding_window_duration)
             self.signal_index += unchecked_duration
             unchecked_duration -= unchecked_duration
+            print("Now unchecked is:")
+            print(unchecked_duration)
         else:
             raise NotImplementedError("Ran through all if-else statements")
 
         if unchecked_duration > 0:
+            print("Unchecked duration is")
+            print(unchecked_duration)
+            #print(f"{self.signal_index}/{self.signal_length} : {self.signal_index/self.signal_length}%")
+            print(f"{(self.signal_index/self.signal_length)*100:.2f}%")
             self.predict_unchecked_data()
 
-        print()
         #Remember to increase signal_index
         return
 
     def predict_image(self,signal,start_index):
         detections = self.yolo.detect(signal,show_bbox=False)
-        print("Predicting image results")
-        print("start index:", start_index)
         self.predictions.append_predictions(detections,start_index)
 
     def generate_image(self,signal):

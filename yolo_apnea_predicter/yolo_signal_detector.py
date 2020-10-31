@@ -30,9 +30,6 @@ class YoloSignalDetector:
 
     def __init__(self):
 
-
-
-
         self.input_size = YOLO_config.size
         self.iou = YOLO_config.iou
         self.score = YOLO_config.score
@@ -53,8 +50,6 @@ class YoloSignalDetector:
             scores,boxes = self.infer_image(test,show_bbox=show_bbox)
 
         predictions = []
-
-
 
         for confidence,prediction in zip(scores,boxes):
             if confidence > 0:

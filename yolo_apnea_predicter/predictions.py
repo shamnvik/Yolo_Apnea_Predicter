@@ -5,22 +5,18 @@ from .config import Image_config
 class Predictions:
 
     def __init__(self):
-        self.predictions = np.zeros(1500) #Todo initalize with larger array and copy intoinstead
+        self.predictions = np.zeros(12*60*60*10) #Todo initalize with larger array and copy intoinstead
         self.sliding_window_duration = Image_config.sliding_window_duration
 
 
     def insert_new_prediction(self,prediction):
-        print("inserting new prediction")
-        print(self.predictions.shape)
         np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"], out=self.predictions[prediction["start"]:prediction["end"]])
-
 
     def get_unread_predictions(self):
         raise NotImplementedError("unread predictions not implemented yet")
         # TODO not implemented
 
     def get_all_predictions(self):
-        print("All predictions:")
         return self.predictions
 
     def append_predictions(self, detections,start_index):
