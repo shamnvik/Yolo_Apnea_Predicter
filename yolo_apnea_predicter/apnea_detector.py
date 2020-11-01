@@ -16,8 +16,7 @@ class ApneaDetector:
         self.signal_index = 0
         self.signal_length = 0
         self.id = uuid.uuid1()
-        self.signal = np.zeros(
-            0)  # TODO: Set to a higher value that can contain a complete nights recording, and copy into that array when appending instead
+        self.signal = np.zeros(12 * 60 * 60 * 10)
 
         self.predictions = Predictions()
         self.yolo = YoloSignalDetector()
@@ -30,10 +29,20 @@ class ApneaDetector:
 
         :return: None. Predictions can be accessed from predictions object (self.predictions).
         """
+
+        self._signal[self.signal_length:self.signal_length+len(signal)] = signal #np.concatenate((self.signal, signal))
         self.signal_length += len(signal)
-        self.signal = np.concatenate((self.signal, signal))
         progress = progressbar.ProgressBar()
         self._predict_unchecked_data(progress)
+
+    @property
+    def signal(self):
+        return self._signal[:self.signal_length]
+
+    @signal.setter
+    def signal(self,signal):
+        self._signal = signal
+
 
     def _predict_unchecked_data(self,progress):
         """

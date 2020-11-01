@@ -6,7 +6,7 @@ from .config import Image_config
 class Predictions:
 
     def __init__(self):
-        self.predictions = np.zeros(12 * 60 * 60 * 10)  # Todo initalize with larger array and copy intoinstead
+        self.predictions = np.zeros(12 * 60 * 60 * 10)
         self.sliding_window_duration = Image_config.sliding_window_duration
         self.last_predicted_index = 0
 

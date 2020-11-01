@@ -19,6 +19,7 @@ different ways to visualize the predictions.
 
 This package can be run as a [standalone](#Standalone-from-main) detector, or can be [imported in other projects](#Imported-in-other-projects)
 
+---
 # Imported in other projects
 
 ## Usage:
@@ -56,7 +57,7 @@ Get NSRR xml output of predictions:
 ```python
 xml = predictions.get_xml()
 ```
-
+---
 # Standalone from main
 ## Usage:
 
