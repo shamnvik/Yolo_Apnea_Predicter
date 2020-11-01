@@ -2,23 +2,15 @@ import cv2
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
-import os
 from .config import YOLO_config
 
-#TODO Clean up this ugly shit
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
-use_pickle_data = False # Only for quick debygging without invoking tensorflow
+from .tensorflow_yolov4.core import utils
+import tensorflow as tf
+from tensorflow.python.saved_model import tag_constants
 
-if use_pickle_data:
-    import pickle
-else:
-    from .tensorflow_yolov4.core import utils
-    import tensorflow as tf
-    from tensorflow.python.saved_model import tag_constants
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    if len(physical_devices) > 0:
-        tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
+physical_devices = tf.config.experimental.list_physical_devices('GPU')
+if len(physical_devices) > 0:
+    tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 class YoloSignalDetector:
 
@@ -27,17 +19,11 @@ class YoloSignalDetector:
         self.iou = YOLO_config.iou
         self.score = YOLO_config.score
         self.weights = YOLO_config.weights
-
-        if not use_pickle_data:
-            self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
+        self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
 
     def detect(self,signal, show_bbox=False):
-        test = self.signal_to_image(signal)
-        if use_pickle_data:
-            scores = pickle.load(open( "scores.p", "rb" ))[0].numpy() # Remove [0] when not using pickle
-            boxes = pickle.load(open( "boxes.p", "rb" ))[0].numpy()
-        else:
-            scores,boxes = self.infer_image(test,show_bbox=show_bbox)
+        image = self.signal_to_image(signal)
+        scores, boxes = self.infer_image(image,show_bbox=show_bbox)
 
         predictions = []
 
@@ -101,11 +87,11 @@ class YoloSignalDetector:
         )
         pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
 
-        if show_bbox and not use_pickle_data:
+        if show_bbox:
             image = utils.draw_bbox(original_image, pred_bbox)
             image = Image.fromarray(image.astype(np.uint8))
             image.show()
 
-        return(scores.numpy()[0],boxes.numpy()[0])
+        return scores.numpy()[0], boxes.numpy()[0]
 
 

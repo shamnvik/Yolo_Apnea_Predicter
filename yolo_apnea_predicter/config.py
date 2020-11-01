@@ -1,5 +1,8 @@
 import os
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
+
+
 class Image_config:
     sliding_window_duration = 900
     sliding_window_overlap = 450
