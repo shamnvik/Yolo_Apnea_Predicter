@@ -19,7 +19,7 @@ different ways to visualize the predictions.
 
 This package can be run as a [standalone](#Standalone-from-main) detector, or can be [imported in other projects](#Imported-in-other-projects)
 
----
+
 # Imported in other projects
 
 ## Usage:
@@ -42,8 +42,6 @@ signal = np.array of shape (x,) # Currently needs to be ABDO_RES signal
 detector.append_signal(signal)
 ```
 
-
-
 ### Access predictions
 Needs to be done after the previous part to have generated predictions
 Get prediction object:
@@ -57,6 +55,20 @@ Get NSRR xml output of predictions:
 ```python
 xml = predictions.get_xml()
 ```
+
+Get numpy array of predictions
+
+```python
+xml = predictions.get_predictions_as_np_array()
+```
+
+Get numpy array of the most recent predictions 
+Usefull for real-time detection.
+Returns an array of the same length as the sliding window durtation
+```python
+xml = predictions.get_last_predictions()
+```
+
 ---
 # Standalone from main
 ## Usage:
