@@ -43,7 +43,8 @@ detector.append_signal(signal)
 ```
 
 ### Access predictions
-Needs to be done after the previous part to have generated predictions
+Needs to be done after the previous part to have generated predictions.
+
 Get prediction object:
 
 ```python
