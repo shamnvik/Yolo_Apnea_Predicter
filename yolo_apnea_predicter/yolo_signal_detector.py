@@ -4,7 +4,6 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import os
 from .config import YOLO_config
-from .tensorflow_yolov4.core import utils
 
 #TODO Clean up this ugly shit
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
@@ -13,6 +12,7 @@ use_pickle_data = False # Only for quick debygging without invoking tensorflow
 if use_pickle_data:
     import pickle
 else:
+    from .tensorflow_yolov4.core import utils
     import tensorflow as tf
     from tensorflow.python.saved_model import tag_constants
     physical_devices = tf.config.experimental.list_physical_devices('GPU')

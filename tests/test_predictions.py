@@ -1,7 +1,8 @@
 from unittest import TestCase
-from yolo_apnea_predicter.predictions import Predictions
 from xml.dom import minidom
+
 from yolo_apnea_predicter.config import Image_config
+from yolo_apnea_predicter.predictions import Predictions
 
 
 class TestPredictions(TestCase):
@@ -18,11 +19,11 @@ class TestPredictions(TestCase):
                                          "confidence": 65}]
 
         self.overlap_predictions = [{"left": 0.2,
-                                         "right": 0.6,
-                                         "confidence": 70},
-                                        {"left": 0.5,
-                                         "right": 0.7,
-                                         "confidence": 65}]
+                                     "right": 0.6,
+                                     "confidence": 70},
+                                    {"left": 0.5,
+                                     "right": 0.7,
+                                     "confidence": 65}]
 
     def test_insert_new_prediction(self):
         first_prediction = {"start": 30,
@@ -52,12 +53,11 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[700], 0)
         self.assertEqual(pred_array[800], 0)
 
-
     def test_get_all_predictions(self):
         self.fail()
 
     def test_append_predictions(self):
-        self.predictions._append_predictions(self.non_overlap_predictions, 0)
+        self.predictions.append_predictions(self.non_overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
@@ -75,7 +75,7 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_append_predictions_with_overlap(self):
-        self.predictions._append_predictions(self.overlap_predictions, 0)
+        self.predictions.append_predictions(self.overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
@@ -93,10 +93,7 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_get_xml(self):
-        self.predictions._append_predictions(self.non_overlap_predictions, 0)
+        self.predictions.append_predictions(self.non_overlap_predictions, 0)
 
         xml = self.predictions.get_xml(0)
         minidom.parseString(xml)
-
-
-
