@@ -13,9 +13,10 @@ class CLI:
 
         self.apnea_detector = ApneaDetector()
         self.apnea_detector.append_signal(self.signal)
-        predictions = self.apnea_detector.predictions.get_predictions_as_np_array()
-        xml = self.apnea_detector.predictions.get_xml()
+        predictions = self.apnea_detector.predictions
+        xml = predictions.get_xml()
         print(xml)
+        print(predictions.get_predictions_as_np_array())
 
     def readEdfFile(self,file):
         """Reads EDF file from SHHS dataset. Will need adjustments to work for other signals
@@ -48,8 +49,6 @@ if __name__ == '__main__':
                                      prog="main.py",
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('file', help='path to a .edf file to analyze')
-    #parser.add_argument(
-    #    "-x", '-xml', help='Output predictions annotations to xml file', action="store_true")
     args = parser.parse_args()
     cli = CLI(signal_file=args.file)
 

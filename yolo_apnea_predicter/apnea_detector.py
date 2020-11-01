@@ -32,7 +32,8 @@ class ApneaDetector:
 
         self._signal[self.signal_length:self.signal_length+len(signal)] = signal #np.concatenate((self.signal, signal))
         self.signal_length += len(signal)
-        progress = progressbar.ProgressBar()
+        print("Predicting newly added signal")
+        progress = progressbar.ProgressBar(max_value=self.signal_length)
         self._predict_unchecked_data(progress)
 
     @property
@@ -82,7 +83,7 @@ class ApneaDetector:
         else:
             raise NotImplementedError("Ran through all if-else statements")
 
-        print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
+        #print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
         progress.update(self.signal_index)
         if unchecked_duration > 0:
             self._predict_unchecked_data(progress)
