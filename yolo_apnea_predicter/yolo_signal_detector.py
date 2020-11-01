@@ -27,7 +27,6 @@ class YoloSignalDetector:
         scores, boxes = self.infer_image(image, show_bbox=show_bbox)
 
         predictions = []
-
         for confidence, prediction in zip(scores, boxes):
             if confidence > 0:
                 (_, left_start, _, right_end) = prediction
@@ -48,7 +47,6 @@ class YoloSignalDetector:
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         ax.grid(False)
         plt.axis('off')
-
         ax.set_xlim(0, 900)
 
         fig.canvas.draw()
@@ -56,6 +54,7 @@ class YoloSignalDetector:
         img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         plt.close(fig)
+
         return img
 
     def infer_image(self, image, show_bbox=False):

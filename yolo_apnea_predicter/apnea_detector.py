@@ -16,7 +16,7 @@ class ApneaDetector:
 
         self.signal_index = 0
         self.signal_length = 0
-        self.id = uuid.uuid1()
+        self.id = uuid.uuid1() #TODO id from parameters maybe? Could be used when making the detector concurrent
         self.signal = np.zeros(12 * 60 * 60 * 10)
 
         self.predictions = Predictions()

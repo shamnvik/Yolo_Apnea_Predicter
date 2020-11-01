@@ -12,6 +12,12 @@ class Predictions:
         self.last_predicted_index = 0
 
     def get_last_predictions(self):
+        """
+        Returns an np array of all the last predictions with each index in the array representing a decisecond.
+        Will be of size self.sliding_window_duration unless the signal is smaller, then it will be equal
+        to the size of the signal
+        :return: np array
+        """
         if self.last_predicted_index >= self.sliding_window_duration:
             return self.predictions[self.last_predicted_index - self.sliding_window_duration: self.last_predicted_index]
         else:
@@ -65,9 +71,7 @@ class Predictions:
 
             with tag("ScoredEvents"):
                 start = 0
-                # end = 0
                 for i, confidence in enumerate(self.predictions):
-
                     if start != 0:
                         if confidence == 0:
                             end = i
@@ -83,7 +87,6 @@ class Predictions:
                                 with tag("SignalLocation"):
                                     text("ABDO RES")
                             start = 0
-                            # end = 0
 
                     elif confidence > threshold:
                         start = i
