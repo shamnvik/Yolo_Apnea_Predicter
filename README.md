@@ -14,16 +14,57 @@ paramenters when initializing the detector
 
 
 # Description
+Predict Apnea events on .edf file or ABDO_RES signal and returns an predictions object with 
+different ways to visualize the predictions.
 
-Predict Apnea events on .edf file and outputs xml file to stdout
-# Usage:
+This package can be run as a [standalone](#standalone_from_main) detector, or can be [imported in other projects](#Imported-in-other-projects)
+
+# Imported in other projects
+
+## Usage:
+
+### Run yolo on signal:
+Import as:
+```python
+from yolo_apnea_predicter.apnea_detector import ApneaDetector
+```
+
+Instantiate:
+```python
+detector = ApneaDetector()
+```
+
+Run yolo on signal:
+
+```python
+signal = np.array of shape (x,) # Currently needs to be ABDO_RES signal
+detector.append_signal(signal)
+```
+
+
+
+### Access predictions
+Needs to be done after the previous part to have generated predictions
+Get prediction object:
+
+```python
+predictions = detector.predictions
+```
+
+Get NSRR xml output of predictions:
+
+```python
+xml = predictions.get_xml()
+```
+
+# Standalone from main
+## Usage:
 
 
 ```bash
 usage: main.py [-h] file
-
 ```
-# Arguments
+## Arguments
 
 |short|long|default|help|
 | :---: | :---: | :---: | :---: |

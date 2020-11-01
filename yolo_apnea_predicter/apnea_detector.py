@@ -1,5 +1,6 @@
 import numpy as np
 import uuid
+import progressbar
 
 from yolo_apnea_predicter.config import Image_config
 from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
@@ -31,9 +32,10 @@ class ApneaDetector:
         """
         self.signal_length += len(signal)
         self.signal = np.concatenate((self.signal, signal))
-        self._predict_unchecked_data()
+        progress = progressbar.ProgressBar()
+        self._predict_unchecked_data(progress)
 
-    def _predict_unchecked_data(self):
+    def _predict_unchecked_data(self,progress):
         """
         Iterates through the data that has not been analyzed by yolo yet.
         Appends np array of 0's if there is to little data, otherwise recursivly predicts apneas
@@ -72,9 +74,9 @@ class ApneaDetector:
             raise NotImplementedError("Ran through all if-else statements")
 
         print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
-
+        progress.update(self.signal_index)
         if unchecked_duration > 0:
-            self._predict_unchecked_data()
+            self._predict_unchecked_data(progress)
 
     def _predict_image(self, signal, start_index):
         """

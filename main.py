@@ -7,7 +7,6 @@ import pyedflib
 
 class CLI:
     def __init__(self,signal_file=None,signal_type="ABDO_RES"):
-        self.detector = ApneaDetector()
         signal_file = os.getcwd() + os.sep + signal_file
         self.edf_signal = self.readEdfFile(signal_file)
         self.signal = self.edf_signal[signal_type].to_numpy()
