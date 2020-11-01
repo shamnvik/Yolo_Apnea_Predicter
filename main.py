@@ -14,7 +14,7 @@ class CLI:
 
         self.apnea_detector = ApneaDetector()
         self.apnea_detector.append_signal(self.signal)
-        predictions = self.apnea_detector.predictions.get_all_predictions()
+        predictions = self.apnea_detector.predictions.get_predictions_as_np_array()
         xml = self.apnea_detector.predictions.get_xml()
         print(xml)
 

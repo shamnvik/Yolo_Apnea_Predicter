@@ -28,12 +28,12 @@ class TestPredictions(TestCase):
         first_prediction = {"start": 30,
                             "end": 400,
                             "confidence": 70}
-        self.predictions.insert_new_prediction(first_prediction)
+        self.predictions._insert_new_prediction(first_prediction)
 
         second_prediction = {"start": 450,
                              "end": 700,
                              "confidence": 65}
-        self.predictions.insert_new_prediction(second_prediction)
+        self.predictions._insert_new_prediction(second_prediction)
         pred_array = self.predictions.predictions
 
         self.assertEqual(pred_array[29], 0)
@@ -57,7 +57,7 @@ class TestPredictions(TestCase):
         self.fail()
 
     def test_append_predictions(self):
-        self.predictions.append_predictions(self.non_overlap_predictions, 0)
+        self.predictions._append_predictions(self.non_overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
@@ -75,7 +75,7 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_append_predictions_with_overlap(self):
-        self.predictions.append_predictions(self.overlap_predictions, 0)
+        self.predictions._append_predictions(self.overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
@@ -93,7 +93,7 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_get_xml(self):
-        self.predictions.append_predictions(self.non_overlap_predictions, 0)
+        self.predictions._append_predictions(self.non_overlap_predictions, 0)
 
         xml = self.predictions.get_xml(0)
         minidom.parseString(xml)

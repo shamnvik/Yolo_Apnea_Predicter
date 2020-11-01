@@ -8,18 +8,31 @@ class Predictions:
         self.predictions = np.zeros(12*60*60*10) #Todo initalize with larger array and copy intoinstead
         self.sliding_window_duration = Image_config.sliding_window_duration
 
-
-    def insert_new_prediction(self,prediction):
-        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"], out=self.predictions[prediction["start"]:prediction["end"]])
-
     def get_unread_predictions(self):
         raise NotImplementedError("unread predictions not implemented yet")
         # TODO not implemented
 
-    def get_all_predictions(self):
+    def get_predictions_as_np_array(self):
+        """
+        All stored predicions as numpy array
+        :return: numpy array of predictions. Values represent confidence of prediction. 0 < value < 1
+        """
         return self.predictions
 
-    def append_predictions(self, detections,start_index):
+    def _insert_new_prediction(self, prediction):
+        """
+        Inserts prediction into predictions array
+        :param prediction: Prediction dictionary with keys: start, end & confidence
+        """
+        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"], out=self.predictions[prediction["start"]:prediction["end"]])
+
+    def _append_predictions(self, detections, start_index):
+        """
+        Converts detection object from yolo into timestamps and copies the confidence of the prediction into the prediction array
+
+        :param detections: Predictions coming from yolo with values in relative numbers based on the image it was detected on
+        :param start_index: index in the signal of the leftmost pixel in the image yolo was run on.
+        """
         for detection in detections:
             confidence = detection["confidence"]
             start_percentage = detection["left"]
@@ -32,15 +45,16 @@ class Predictions:
                               "end":end,
                               "confidence":confidence}
 
-            self.insert_new_prediction(new_prediction)
+            self._insert_new_prediction(new_prediction)
 
-
-    def _sort_predictions(self):
-        self.predictions.sort(key=lambda x : x["start"])
 
 
     def get_xml(self,threshold=0):
-
+        """
+        Return NSRR XML of all predictions
+        :param threshold: Threshold of yolo's confidence. Discards confidence lower than threshold if thresholds is set.
+        :return: string of XML
+        """
         doc, tag, text = Doc().tagtext()
         doc.asis('<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
 

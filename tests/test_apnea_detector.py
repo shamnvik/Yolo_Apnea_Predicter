@@ -15,14 +15,14 @@ class TestApneaDetector(TestCase):
     #    apnea_predictor = ApneaDetector()
     #    apnea_predictor.append_signal(self.abdo_signal[0:1700])
     #    apnea_predictor._predict_unchecked_data()
-    #    predictions = apnea_predictor.predictions.get_all_predictions()
+    #    predictions = apnea_predictor.predictions.get_predictions_as_np_array()
     #    print(predictions)
     #    self.fail()
 
     def test_predict_unchecked_data_too_little_data(self):
         apnea_predictor = ApneaDetector()
         apnea_predictor.append_signal(self.abdo_signal[0:700])
-        predictions = apnea_predictor.predictions.get_all_predictions()
+        predictions = apnea_predictor.predictions.get_predictions_as_np_array()
         self.assertEqual(np.max(predictions[700:]), 0)
 
 

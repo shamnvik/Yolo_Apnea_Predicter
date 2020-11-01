@@ -3,43 +3,33 @@ import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
-
+from .config import YOLO_config
+from .tensorflow_yolov4.core import utils
 
 #TODO Clean up this ugly shit
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
-
-use_pickle_data = False
+use_pickle_data = False # Only for quick debygging without invoking tensorflow
 
 if use_pickle_data:
     import pickle
 else:
     import tensorflow as tf
     from tensorflow.python.saved_model import tag_constants
-
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     if len(physical_devices) > 0:
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
-    from .tensorflow_yolov4.core import utils
-
-from .config import YOLO_config
-
-
 
 
 class YoloSignalDetector:
 
     def __init__(self):
-
         self.input_size = YOLO_config.size
         self.iou = YOLO_config.iou
         self.score = YOLO_config.score
-
         self.weights = YOLO_config.weights
 
         if not use_pickle_data:
             self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
-
-
 
     def detect(self,signal, show_bbox=False):
         test = self.signal_to_image(signal)
@@ -59,6 +49,7 @@ class YoloSignalDetector:
                         "right":right_end}
 
                 predictions.append(pred)
+
         return predictions
 
     def signal_to_image(self,signal):
@@ -108,19 +99,6 @@ class YoloSignalDetector:
             score_threshold=self.score
         )
         pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-        if False:
-            print("scores")
-            print(scores) # Array of confidence, shape=(1, 50)
-
-            print("boxes") # Array of bounding boxes?  shape=(1, 50, 4)
-            print(boxes) #I think 0: is center y position(or distance from top to pred), 1: percantege to min x pos(left side of pred) , 2:height(discard) 3: max x position(Right side of pred box)
-            # Probably corners on the form distance from top left to (top/bottom, left, top/bottom, right)
-            print("classes") #Classes, shape=(1, 50) (only 0 for apnea)
-            print(classes)
-
-            print("valid_detections")
-            print(valid_detections) #tf.Tensor([2], shape=(1,), dtype=int32)
-            print(type(valid_detections))
 
         if show_bbox and not use_pickle_data:
             image = utils.draw_bbox(original_image, pred_bbox)

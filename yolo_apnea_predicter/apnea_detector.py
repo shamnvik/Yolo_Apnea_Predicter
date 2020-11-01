@@ -23,28 +23,25 @@ class ApneaDetector:
 
     def append_signal(self,signal):
         """
-        Appends newly recieved sensor data to the data already stored.
-        Only used for predictions in real time
+        Appends newly received sensor data to the data already stored. Runs yolo on signal to detect apnea.
 
         :param signal: np array of new signal
 
-        :return: Start and end location of apnea relative to start of recording
+        :return: None. Predictions can be accessed from predictions object (self.predictions).
         """
         self.signal_length += len(signal)
         self.signal = np.concatenate((self.signal,signal))
         self._predict_unchecked_data()
 
-    def get_predictions(self):
-        """
-        Returns a list of all events that has happened since the last time this method was called.
-        """
-        return self.predictions.get_all_predictions()
-
-    def get_last_predictions(self):
-        raise NotImplementedError("Will eventually return the last 90 seconds of predictions (or val from config")
-
-
     def _predict_unchecked_data(self):
+        """
+        Iterates through the data that has not been analyzed by yolo yet.
+        Appends np array of 0's if there is to little data, otherwise recursivly predicts apneas
+        on the remaining data with a stride of {self.sliding_window_overlap}.
+
+        If newly added data is less than {self.sliding_window_overlap} it predicts all the new data
+        and whatever is needed before to reach {self.sliding_window_duration}
+        """
         unchecked_duration = self.signal_length - self.signal_index
 
         signal_to_check = np.zeros(self.sliding_window_duration)
@@ -92,8 +89,16 @@ class ApneaDetector:
 
 
     def _predict_image(self, signal, start_index):
+        """
+        Local helper function for running yolo on a signal of already correct length and inserts the predictions
+        into the prediction object
+
+        :param signal: signal to detect: Should always be {self.sliding_window_duration} length
+        :param start_index: index of signal[0] in {self.signal} for knowing when predictions start
+                since start of recording
+        """
         detections = self.yolo.detect(signal,show_bbox=False)
-        self.predictions.append_predictions(detections,start_index)
+        self.predictions._append_predictions(detections, start_index)
 
 
 
