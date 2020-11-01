@@ -53,8 +53,19 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[700], 0)
         self.assertEqual(pred_array[800], 0)
 
-    def test_get_all_predictions(self):
-        self.fail()
+    def test_get_last_predictions_no_data(self):
+        last_pred = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),0)
+
+    def test_get_last_predictions_with_some_data(self):
+        self.predictions.append_predictions(self.non_overlap_predictions, -int(self.sliding_window_duration*0.3))
+        last_pred = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration*0.7)
+
+    def test_get_last_predictions_with_enough_data(self):
+        self.predictions.append_predictions(self.non_overlap_predictions, int(self.sliding_window_duration*3))
+        last_pred = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
     def test_append_predictions(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)

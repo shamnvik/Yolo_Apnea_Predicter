@@ -8,10 +8,14 @@ class Predictions:
     def __init__(self):
         self.predictions = np.zeros(12 * 60 * 60 * 10)  # Todo initalize with larger array and copy intoinstead
         self.sliding_window_duration = Image_config.sliding_window_duration
+        self.last_predicted_index = 0
 
-    def get_unread_predictions(self):
-        raise NotImplementedError("unread predictions not implemented yet")
-        # TODO not implemented
+    def get_last_predictions(self):
+        if self.last_predicted_index >= self.sliding_window_duration:
+            return self.predictions[self.last_predicted_index - self.sliding_window_duration: self.last_predicted_index]
+        else:
+            return self.predictions[0:self.last_predicted_index]
+
 
     def get_predictions_as_np_array(self):
         """
@@ -20,13 +24,7 @@ class Predictions:
         """
         return self.predictions
 
-    def _insert_new_prediction(self, prediction):
-        """
-        Inserts prediction into predictions array
-        :param prediction: Prediction dictionary with keys: start, end & confidence
-        """
-        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
-                   out=self.predictions[prediction["start"]:prediction["end"]])
+
 
     def append_predictions(self, detections, start_index):
         """
@@ -48,6 +46,7 @@ class Predictions:
                               "confidence": confidence}
 
             self._insert_new_prediction(new_prediction)
+        self.last_predicted_index = start_index + self.sliding_window_duration
 
     def get_xml(self, threshold=0):
         """
@@ -95,3 +94,12 @@ class Predictions:
             newline='\r\n'
         )
         return result
+
+    def _insert_new_prediction(self, prediction):
+        """
+        Inserts prediction into predictions array
+        :param prediction: Prediction dictionary with keys: start, end & confidence
+        """
+        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
+                   out=self.predictions[prediction["start"]:prediction["end"]])
+
