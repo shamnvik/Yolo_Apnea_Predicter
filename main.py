@@ -11,13 +11,10 @@ class CLI:
         signal_file = os.getcwd() + os.sep + signal_file
         self.edf_signal = self.readEdfFile(signal_file)
         self.signal = self.edf_signal[signal_type].to_numpy()
+
         self.apnea_detector = ApneaDetector()
         self.apnea_detector.append_signal(self.signal)
-        self.apnea_detector.predict_unchecked_data()
         predictions = self.apnea_detector.predictions.get_all_predictions()
-        print(predictions)
-        print(predictions.shape)
-        print(np.max(predictions))
         xml = self.apnea_detector.predictions.get_xml()
         print(xml)
 

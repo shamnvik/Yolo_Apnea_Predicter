@@ -16,5 +16,5 @@ class TestYoloSignalDetector(TestCase):
         self.yolo = Yolo.YoloSignalDetector()
 
     def test_detect(self):
-        self.yolo.detect(self.abdo_signal[89193:89193+self.prediction_duration])
-        self.fail()
+        predictions = self.yolo.detect(self.abdo_signal[89193:89193+self.prediction_duration])
+        self.assertGreater(len(predictions),0) #NB! This is with current model. May not detect apnea on other models

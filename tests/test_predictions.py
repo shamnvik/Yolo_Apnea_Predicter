@@ -52,8 +52,6 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[700], 0)
         self.assertEqual(pred_array[800], 0)
 
-    def test_get_unread_predictions(self):
-        self.fail()
 
     def test_get_all_predictions(self):
         self.fail()
