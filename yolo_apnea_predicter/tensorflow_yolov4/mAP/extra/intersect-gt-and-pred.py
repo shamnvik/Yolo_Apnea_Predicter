@@ -1,6 +1,6 @@
-import sys
-import os
 import glob
+import os
+import sys
 
 ## This script ensures same number of files in ground-truth and predicted folder.
 ## When you encounter file not found error, it's usually because you have

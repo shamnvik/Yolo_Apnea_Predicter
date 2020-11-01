@@ -1,13 +1,14 @@
 import numpy as np
 from yattag import Doc, indent
-from .config import Image_config
+
+from .config import ImageConfig
 
 
 class Predictions:
 
     def __init__(self):
         self.predictions = np.zeros(12 * 60 * 60 * 10)
-        self.sliding_window_duration = Image_config.sliding_window_duration
+        self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.last_predicted_index = 0
 
     def get_last_predictions(self):
@@ -16,21 +17,20 @@ class Predictions:
         else:
             return self.predictions[0:self.last_predicted_index]
 
-
     def get_predictions_as_np_array(self):
         """
-        All stored predicions as numpy array
+        All stored predictions as numpy array
         :return: numpy array of predictions. Values represent confidence of prediction. 0 < value < 1
         """
         return self.predictions
 
-
-
     def append_predictions(self, detections, start_index):
         """
-        Converts detection object from yolo into timestamps and copies the confidence of the prediction into the prediction array
+        Converts detection object from yolo into timestamps
+        and copies the confidence of the prediction into the prediction array
 
-        :param detections: Predictions coming from yolo with values in relative numbers based on the image it was detected on
+        :param detections: Predictions coming from yolo with values in relative numbers based on
+                            the image it was detected on
         :param start_index: index in the signal of the leftmost pixel in the image yolo was run on.
         """
         for detection in detections:
@@ -65,7 +65,7 @@ class Predictions:
 
             with tag("ScoredEvents"):
                 start = 0
-                end = 0
+                # end = 0
                 for i, confidence in enumerate(self.predictions):
 
                     if start != 0:
@@ -83,7 +83,7 @@ class Predictions:
                                 with tag("SignalLocation"):
                                     text("ABDO RES")
                             start = 0
-                            end = 0
+                            # end = 0
 
                     elif confidence > threshold:
                         start = i
@@ -102,4 +102,3 @@ class Predictions:
         """
         np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
                    out=self.predictions[prediction["start"]:prediction["end"]])
-

@@ -1,17 +1,18 @@
-import numpy as np
 import uuid
+
+import numpy as np
 import progressbar
 
-from yolo_apnea_predicter.config import Image_config
-from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
+from yolo_apnea_predicter.config import ImageConfig
 from yolo_apnea_predicter.predictions import Predictions
+from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
 
 
 class ApneaDetector:
 
     def __init__(self):
-        self.sliding_window_duration = Image_config.sliding_window_duration
-        self.sliding_window_overlap = Image_config.sliding_window_overlap
+        self.sliding_window_duration = ImageConfig.sliding_window_duration
+        self.sliding_window_overlap = ImageConfig.sliding_window_overlap
 
         self.signal_index = 0
         self.signal_length = 0
@@ -30,7 +31,7 @@ class ApneaDetector:
         :return: None. Predictions can be accessed from predictions object (self.predictions).
         """
 
-        self._signal[self.signal_length:self.signal_length+len(signal)] = signal #np.concatenate((self.signal, signal))
+        self._signal[self.signal_length:self.signal_length + len(signal)] = signal
         self.signal_length += len(signal)
         print("Predicting newly added signal")
         progress = progressbar.ProgressBar(max_value=self.signal_length)
@@ -41,14 +42,13 @@ class ApneaDetector:
         return self._signal[:self.signal_length]
 
     @signal.setter
-    def signal(self,signal):
+    def signal(self, signal):
         self._signal = signal
 
-
-    def _predict_unchecked_data(self,progress):
+    def _predict_unchecked_data(self, progress):
         """
         Iterates through the data that has not been analyzed by yolo yet.
-        Appends np array of 0's if there is to little data, otherwise recursivly predicts apneas
+        Appends np array of 0's if there is to little data, otherwise recursively predicts apneas
         on the remaining data with a stride of {self.sliding_window_overlap}.
 
         If newly added data is less than {self.sliding_window_overlap} it predicts all the new data
@@ -83,7 +83,7 @@ class ApneaDetector:
         else:
             raise NotImplementedError("Ran through all if-else statements")
 
-        #print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
+        # print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
         progress.update(self.signal_index)
         if unchecked_duration > 0:
             self._predict_unchecked_data(progress)

@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 import yolo_apnea_predicter.yolo_signal_detector as Yolo
-from yolo_apnea_predicter.config import Image_config
+from yolo_apnea_predicter.config import ImageConfig
 
 
 class TestYoloSignalDetector(TestCase):
@@ -12,7 +12,7 @@ class TestYoloSignalDetector(TestCase):
         test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
 
-        self.prediction_duration = Image_config.sliding_window_duration
+        self.prediction_duration = ImageConfig.sliding_window_duration
 
         self.yolo = Yolo.YoloSignalDetector()
 

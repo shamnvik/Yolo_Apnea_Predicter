@@ -1,44 +1,46 @@
 import cv2
-import numpy as np
-from PIL import Image
 import matplotlib.pyplot as plt
-from .config import YOLO_config
-
-from .tensorflow_yolov4.core import utils
+import numpy as np
 import tensorflow as tf
+from PIL import Image
 from tensorflow.python.saved_model import tag_constants
+
+from .config import YoloConfig
+from .tensorflow_yolov4.core import utils
 
 physical_devices = tf.config.experimental.list_physical_devices('GPU')
 if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
+
 class YoloSignalDetector:
 
     def __init__(self):
-        self.input_size = YOLO_config.size
-        self.iou = YOLO_config.iou
-        self.score = YOLO_config.score
-        self.weights = YOLO_config.weights
+        self.input_size = YoloConfig.size
+        self.iou = YoloConfig.iou
+        self.score = YoloConfig.score
+        self.weights = YoloConfig.weights
         self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
 
-    def detect(self,signal, show_bbox=False):
+    def detect(self, signal, show_bbox=False):
         image = self.signal_to_image(signal)
-        scores, boxes = self.infer_image(image,show_bbox=show_bbox)
+        scores, boxes = self.infer_image(image, show_bbox=show_bbox)
 
         predictions = []
 
-        for confidence,prediction in zip(scores,boxes):
+        for confidence, prediction in zip(scores, boxes):
             if confidence > 0:
-                (_, left_start,_, right_end) = prediction
-                pred = {"confidence":confidence,
-                        "left":left_start,
-                        "right":right_end}
+                (_, left_start, _, right_end) = prediction
+                pred = {"confidence": confidence,
+                        "left": left_start,
+                        "right": right_end}
 
                 predictions.append(pred)
 
         return predictions
 
-    def signal_to_image(self,signal):
+    @staticmethod
+    def signal_to_image(signal):
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.plot(signal)
         ax.set_ylim(-1, 1)
@@ -56,8 +58,7 @@ class YoloSignalDetector:
         plt.close(fig)
         return img
 
-
-    def infer_image(self,image,show_bbox=False):
+    def infer_image(self, image, show_bbox=False):
         original_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         image_data = cv2.resize(original_image, (self.input_size, self.input_size))
@@ -71,6 +72,8 @@ class YoloSignalDetector:
         infer = self.saved_model_loaded.signatures['serving_default']
         batch_data = tf.constant(images_data)
         pred_bbox = infer(batch_data)
+
+        boxes, pred_conf = None, None
 
         for key, value in pred_bbox.items():
             boxes = value[:, :, 0:4]
@@ -93,5 +96,3 @@ class YoloSignalDetector:
             image.show()
 
         return scores.numpy()[0], boxes.numpy()[0]
-
-

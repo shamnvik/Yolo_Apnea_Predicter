@@ -286,7 +286,6 @@ class Dataset(object):
         )
         return image, bboxes
 
-
     def preprocess_true_boxes(self, bboxes):
         label = [
             np.zeros(
@@ -322,7 +321,7 @@ class Dataset(object):
                 axis=-1,
             )
             bbox_xywh_scaled = (
-                1.0 * bbox_xywh[np.newaxis, :] / self.strides[:, np.newaxis]
+                    1.0 * bbox_xywh[np.newaxis, :] / self.strides[:, np.newaxis]
             )
 
             iou = []
@@ -330,7 +329,7 @@ class Dataset(object):
             for i in range(3):
                 anchors_xywh = np.zeros((self.anchor_per_scale, 4))
                 anchors_xywh[:, 0:2] = (
-                    np.floor(bbox_xywh_scaled[i, 0:2]).astype(np.int32) + 0.5
+                        np.floor(bbox_xywh_scaled[i, 0:2]).astype(np.int32) + 0.5
                 )
                 anchors_xywh[:, 2:4] = self.anchors[i]
 

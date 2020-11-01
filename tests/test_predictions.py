@@ -1,7 +1,7 @@
 from unittest import TestCase
 from xml.dom import minidom
 
-from yolo_apnea_predicter.config import Image_config
+from yolo_apnea_predicter.config import ImageConfig
 from yolo_apnea_predicter.predictions import Predictions
 
 
@@ -9,7 +9,7 @@ class TestPredictions(TestCase):
 
     def setUp(self):
         self.predictions = Predictions()
-        self.sliding_window_duration = Image_config.sliding_window_duration
+        self.sliding_window_duration = ImageConfig.sliding_window_duration
 
         self.non_overlap_predictions = [{"left": 0.2,
                                          "right": 0.4,
