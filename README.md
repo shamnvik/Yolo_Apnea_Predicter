@@ -17,7 +17,7 @@ paramenters when initializing the detector
 Predict Apnea events on .edf file or ABDO_RES signal and returns an predictions object with 
 different ways to visualize the predictions.
 
-This package can be run as a [standalone](#standalone_from_main) detector, or can be [imported in other projects](#Imported-in-other-projects)
+This package can be run as a [standalone](#Standalone-from-main) detector, or can be [imported in other projects](#Imported-in-other-projects)
 
 # Imported in other projects
 
