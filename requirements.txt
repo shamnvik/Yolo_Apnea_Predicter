@@ -48,5 +48,4 @@ Werkzeug==1.0.1
 wincertstore==0.2
 wrapt==1.12.1
 yattag==1.14.0
--e git+https://github.com/shamnvik/Yolo_Apnea_Predicter.git@c949940a1ad2369b99bf3a907aa98ba0be7c71a2#egg=yolo_apnea_predicter
 zipp==3.3.1

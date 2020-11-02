@@ -3,14 +3,14 @@ import uuid
 import numpy as np
 import progressbar
 
-from yolo_apnea_predicter.config import ImageConfig
+from yolo_apnea_predicter.config import ImageConfig,YoloConfig
 from yolo_apnea_predicter.predictions import Predictions
 from yolo_apnea_predicter.yolo_signal_detector import YoloSignalDetector
 
 
 class ApneaDetector:
 
-    def __init__(self):
+    def __init__(self,weights_path=YoloConfig.weights): #Todo, remove default weights
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.sliding_window_overlap = ImageConfig.sliding_window_overlap
 
@@ -20,7 +20,7 @@ class ApneaDetector:
         self.signal = np.zeros(12 * 60 * 60 * 10)
 
         self.predictions = Predictions()
-        self.yolo = YoloSignalDetector()
+        self.yolo = YoloSignalDetector(weights_path)
 
     def append_signal(self, signal):
         """

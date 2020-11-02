@@ -15,11 +15,11 @@ if len(physical_devices) > 0:
 
 class YoloSignalDetector:
 
-    def __init__(self):
+    def __init__(self,weights_path):
         self.input_size = YoloConfig.size
         self.iou = YoloConfig.iou
         self.score = YoloConfig.score
-        self.weights = YoloConfig.weights
+        self.weights = weights_path
         self.saved_model_loaded = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
 
     def detect(self, signal, show_bbox=False):
