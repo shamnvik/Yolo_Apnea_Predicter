@@ -55,11 +55,10 @@ class ApneaDetector:
         and whatever is needed before to reach {self.sliding_window_duration}
         """
         unchecked_duration = self.signal_length - self.signal_index
-
         signal_to_check = np.zeros(self.sliding_window_duration)
 
         if self.signal_index + self.signal_length < self.sliding_window_duration:
-            signal_to_check[-unchecked_duration:] = self.signal
+            signal_to_check[-self.signal_length:] = self.signal
             self._predict_image(signal_to_check, unchecked_duration - self.sliding_window_duration)
             self.signal_index += min(unchecked_duration, self.sliding_window_overlap)
             unchecked_duration -= unchecked_duration
@@ -71,7 +70,6 @@ class ApneaDetector:
             unchecked_duration -= self.sliding_window_overlap
 
         elif self.signal_length < self.sliding_window_duration:
-            print("DOES THIS HAPPEN?")
             signal_to_check[-self.signal_length:] = self.signal[:]
             self.signal_index += min(unchecked_duration, self.sliding_window_overlap)
 

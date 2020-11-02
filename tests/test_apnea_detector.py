@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 import numpy as np
-
+import random
 from yolo_apnea_predicter.apnea_detector import ApneaDetector
 
 
@@ -12,8 +12,23 @@ class TestApneaDetector(TestCase):
         self.abdo_signal = test_signal["abdo_res"]
         self.thor_signal = test_signal["thor_res"]
 
-    def test_predict_unchecked_data_too_little_data(self):
+    def test_append_signal_too_little_data(self):
         apnea_predictor = ApneaDetector()
+        apnea_predictor.append_signal(self.abdo_signal[0:700])
+        predictions = apnea_predictor.predictions.get_predictions_as_np_array()
+        self.assertEqual(np.max(predictions[700:]), 0)
+
+    def test_append_signal_many_small_appends(self):
+
+        apnea_predictor = ApneaDetector()
+
+        i = 0
+        while i < 100:
+            duration = random.randrange(10, 100)
+            signal = self.abdo_signal[i:i + duration]
+            apnea_predictor.append_signal(signal)
+            i += duration
+
         apnea_predictor.append_signal(self.abdo_signal[0:700])
         predictions = apnea_predictor.predictions.get_predictions_as_np_array()
         self.assertEqual(np.max(predictions[700:]), 0)
