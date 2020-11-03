@@ -1,8 +1,8 @@
 from unittest import TestCase
 from xml.dom import minidom
 
-from yolo_apnea_predicter.config import ImageConfig
-from yolo_apnea_predicter.predictions import Predictions
+from yoloapnea.config import ImageConfig
+from yoloapnea.predictions import Predictions
 
 
 class TestPredictions(TestCase):

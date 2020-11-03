@@ -1,6 +1,6 @@
 import argparse
 import os
-from yolo_apnea_predicter.apnea_detector import ApneaDetector
+from yoloapnea.apnea_detector import ApneaDetector
 import pandas as pd
 import numpy as np
 import pyedflib

@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 import random
-from yolo_apnea_predicter.apnea_detector import ApneaDetector
+from yoloapnea.apnea_detector import ApneaDetector
 
 
 class TestApneaDetector(TestCase):

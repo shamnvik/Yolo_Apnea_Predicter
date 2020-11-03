@@ -2,8 +2,8 @@ from unittest import TestCase
 
 import numpy as np
 
-import yolo_apnea_predicter.yolo_signal_detector as Yolo
-from yolo_apnea_predicter.config import ImageConfig, YoloConfig
+import yoloapnea.yolo_signal_detector as Yolo
+from yoloapnea.config import ImageConfig, YoloConfig
 
 
 class TestYoloSignalDetector(TestCase):

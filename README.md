@@ -27,7 +27,7 @@ This package can be run as a [standalone](#Standalone-from-main) detector, or ca
 ### Run yolo on signal:
 Import as:
 ```python
-from yolo_apnea_predicter.apnea_detector import ApneaDetector
+from yoloapnea.apnea_detector import ApneaDetector
 ```
 
 Instantiate:
