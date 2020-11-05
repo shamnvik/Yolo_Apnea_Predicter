@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Weight files
+/yoloapnea/tensorflow_yolov4/checkpoints/
