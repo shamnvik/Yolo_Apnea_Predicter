@@ -5,6 +5,7 @@ from yoloapnea.config import ImageConfig
 from yoloapnea.predictions import Predictions
 
 
+
 class TestPredictions(TestCase):
 
     def setUp(self):

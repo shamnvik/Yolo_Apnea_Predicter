@@ -3,9 +3,9 @@ import uuid
 import numpy as np
 import progressbar
 
-from yoloapnea.config import ImageConfig,YoloConfig
-from yoloapnea.predictions import Predictions
-from yoloapnea.yolo_signal_detector import YoloSignalDetector
+from .config import ImageConfig,YoloConfig
+from .predictions import Predictions
+from .yolo_signal_detector import YoloSignalDetector
 
 
 class ApneaDetector:

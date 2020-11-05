@@ -10,8 +10,7 @@ class ImageConfig:
 
 class YoloConfig:
     size = 416
-    weights = "weights/yolov3-416"
-    weights = os.path.abspath(os.path.join(os.path.dirname(__file__), weights))
+    weights = r"C:\Users\Sondre Hamnvik\Documents\INF\Master\data\Weights\yolov3-416"
     iou = 0.45
     score = 0.25
     pred_names = "tensorflow_yolov4/data/classes/coco.names"
