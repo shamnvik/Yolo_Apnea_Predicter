@@ -55,38 +55,30 @@ class ApneaDetector:
         If newly added data is less than {self.sliding_window_overlap} it predicts all the new data
         and whatever is needed before to reach {self.sliding_window_duration}
         """
+        prediction, self.signal_index = self._get_next_unchecked_signal(self.signal, self.signal_index)
         unchecked_duration = self.signal_length - self.signal_index
-        signal_to_check = np.zeros(self.sliding_window_duration)
-
-        if self.signal_index + self.signal_length < self.sliding_window_duration:
-            signal_to_check[-self.signal_length:] = self.signal
-            self._predict_image(signal_to_check, unchecked_duration - self.sliding_window_duration)
-            self.signal_index += min(unchecked_duration, self.sliding_window_overlap)
-            unchecked_duration -= unchecked_duration
-
-        elif unchecked_duration >= self.sliding_window_duration:
-            signal_to_check[:] = self.signal[self.signal_index:self.signal_index + self.sliding_window_duration]
-            self._predict_image(signal_to_check, self.signal_index)
-            self.signal_index += self.sliding_window_overlap
-            unchecked_duration -= self.sliding_window_overlap
-
-        elif self.signal_length < self.sliding_window_duration:
-            signal_to_check[-self.signal_length:] = self.signal[:]
-            self.signal_index += min(unchecked_duration, self.sliding_window_overlap)
-
-        elif unchecked_duration < self.sliding_window_duration:  # This should be the remainder of the signal
-            signal_to_check[:] = self.signal[-self.sliding_window_duration:]
-            self._predict_image(signal_to_check, -self.sliding_window_duration)
-            self.signal_index += unchecked_duration
-            unchecked_duration -= unchecked_duration
-        else:
-            raise NotImplementedError("Ran through all if-else statements")
-
-        # print(f"Analyzed: {(self.signal_index / self.signal_length) * 100:.2f}%")
-        print("Signal index is")
         progress.update(self.signal_index)
         if unchecked_duration > 0:
             self._predict_unchecked_data(progress)
+
+    def _get_next_unchecked_signal(self,signal,start_index):
+        new_start_index = start_index
+
+        if len(signal) - start_index >self.sliding_window_duration: #Enough data for sliding window duration after start index
+            signal_data = signal[start_index:start_index+self.sliding_window_duration]
+            new_start_index += self.sliding_window_overlap
+
+        elif len(signal) >= self.sliding_window_duration: #Not enough data after index, but enough data before to reach sliding_window_duration
+            signal_data = signal[-self.sliding_window_duration:]
+            new_start_index = len(signal)
+
+        elif len(signal) < self.sliding_window_duration:
+            signal_data = signal
+            new_start_index = len(signal)
+        else:
+            raise NotImplementedError
+        return signal_data,new_start_index
+
 
     def _predict_image(self, signal, start_index):
         """
