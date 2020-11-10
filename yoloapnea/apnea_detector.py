@@ -55,29 +55,36 @@ class ApneaDetector:
         If newly added data is less than {self.sliding_window_overlap} it predicts all the new data
         and whatever is needed before to reach {self.sliding_window_duration}
         """
-        prediction, self.signal_index = self._get_next_unchecked_signal(self.signal, self.signal_index)
         unchecked_duration = self.signal_length - self.signal_index
+
+        signal, self.signal_index, signal_start_index = self._get_next_unchecked_signal(self.signal, self.signal_index)
+        self._predict_image(signal,signal_start_index)
+
         progress.update(self.signal_index)
         if unchecked_duration > 0:
             self._predict_unchecked_data(progress)
 
     def _get_next_unchecked_signal(self,signal,start_index):
         new_start_index = start_index
-
+        signal_start_index =start_index
         if len(signal) - start_index >self.sliding_window_duration: #Enough data for sliding window duration after start index
             signal_data = signal[start_index:start_index+self.sliding_window_duration]
             new_start_index += self.sliding_window_overlap
+            signal_start_index = start_index
 
         elif len(signal) >= self.sliding_window_duration: #Not enough data after index, but enough data before to reach sliding_window_duration
             signal_data = signal[-self.sliding_window_duration:]
             new_start_index = len(signal)
+            signal_start_index = len(signal) -self.sliding_window_duration
 
         elif len(signal) < self.sliding_window_duration:
-            signal_data = signal
+            signal_data = np.zeros(self.sliding_window_duration)
+            signal_data[-len(signal):] = signal
             new_start_index = len(signal)
+            signal_start_index = len(signal) -self.sliding_window_duration
         else:
             raise NotImplementedError
-        return signal_data,new_start_index
+        return signal_data,new_start_index,signal_start_index
 
 
     def _predict_image(self, signal, start_index):

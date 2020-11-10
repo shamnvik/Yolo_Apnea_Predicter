@@ -32,7 +32,6 @@ class TestApneaDetector(TestCase):
 
         apnea_predictor.append_signal(self.abdo_signal[0:700])
         predictions = apnea_predictor.predictions.get_predictions_as_np_array()
-        self.assertEqual(np.max(predictions[700:]), 0)
 
     def test_append_signal(self):
         apnea_predictor = ApneaDetector()
@@ -59,24 +58,24 @@ class TestApneaDetector(TestCase):
         medium_index = 50
         start_index = 0
 
-        prediction,new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index],start_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index],start_index)
         self.assertEqual(new_index,small_index)
-        self.assertEqual(len(prediction),small_index)
+        self.assertEqual(len(prediction),self.sliding_window_duration)
 
-        prediction,new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index+small_index],start_index+small_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index+small_index],start_index+small_index)
         self.assertEqual(new_index,small_index+ small_index)
-        self.assertEqual(len(prediction),small_index+ small_index)
+        self.assertEqual(len(prediction),self.sliding_window_duration)
 
-        prediction,new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index+small_index+medium_index],start_index+small_index+medium_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:small_index+small_index+medium_index],start_index+small_index+medium_index)
         self.assertEqual(new_index,small_index+small_index+medium_index)
-        self.assertEqual(len(prediction),small_index+ small_index+medium_index)
+        self.assertEqual(len(prediction),self.sliding_window_duration)
 
     def test__get_next_unchecked_signal_not_enough_remaining_data_in_signal(self):
         apnea_predictor = ApneaDetector()
         data_index = 1200
         start_index = 1100
 
-        prediction,new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:data_index],start_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:data_index],start_index)
         self.assertEqual(new_index,data_index)
         self.assertEqual(len(prediction),self.sliding_window_duration)
         self.assertListEqual(list(prediction),list(self.abdo_signal[data_index-self.sliding_window_duration:data_index]))
@@ -88,11 +87,11 @@ class TestApneaDetector(TestCase):
         start_index = 0
 
 
-        prediction, new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:large_index],start_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:large_index],start_index)
         self.assertEqual(new_index,self.sliding_window_overlap)
         self.assertEqual(len(prediction),self.sliding_window_duration)
 
         start_index = 400
-        prediction, new_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:large_index],start_index)
+        prediction,new_index,signal_start_index = apnea_predictor._get_next_unchecked_signal(self.abdo_signal[:large_index],start_index)
         self.assertEqual(new_index,self.sliding_window_overlap+start_index)
         self.assertEqual(len(prediction),self.sliding_window_duration)
