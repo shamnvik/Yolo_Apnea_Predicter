@@ -55,42 +55,55 @@ class TestPredictions(TestCase):
         self.assertEqual(pred_array[800], 0)
 
     def test_get_last_predictions_no_data(self):
-        last_pred = self.predictions.get_last_predictions()
+        last_pred, start_index = self.predictions.get_last_predictions()
         self.assertEqual(len(last_pred),0)
+        self.assertEqual(start_index,0)
 
     def test_get_last_predictions_with_some_data(self):
         self.predictions.append_predictions(self.non_overlap_predictions, -int(self.sliding_window_duration*0.3))
-        last_pred = self.predictions.get_last_predictions()
+        last_pred, start_index = self.predictions.get_last_predictions()
         self.assertEqual(len(last_pred),self.sliding_window_duration*0.7)
+        self.assertEqual(start_index,0)
 
     def test_get_last_predictions_with_enough_data(self):
         self.predictions.append_predictions(self.non_overlap_predictions, int(self.sliding_window_duration*3))
-        last_pred = self.predictions.get_last_predictions()
+        last_pred,start_index = self.predictions.get_last_predictions()
         self.assertEqual(len(last_pred),self.sliding_window_duration)
+        self.assertEqual(start_index,self.sliding_window_duration*3)
 
     def test_get_last_predictions_with_adding_data(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
         self.predictions.append_predictions(self.non_overlap_predictions, 200)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 400)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 500)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 700)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 900)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 950)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
         self.predictions.append_predictions(self.non_overlap_predictions, 1200)
-        self.assertEqual(len(self.predictions.get_last_predictions()),self.sliding_window_duration)
+        last_pred,start_index = self.predictions.get_last_predictions()
+        self.assertEqual(len(last_pred),self.sliding_window_duration)
 
 
 

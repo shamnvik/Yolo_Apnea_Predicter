@@ -16,12 +16,18 @@ class Predictions:
         Returns an np array of all the last predictions with each index in the array representing a decisecond.
         Will be of size self.sliding_window_duration unless the signal is smaller, then it will be equal
         to the size of the signal
-        :return: np array
+        :return: np array, index in signal of first element in np array
         """
+
         if self.last_predicted_index >= self.sliding_window_duration:
-            return self.predictions[self.last_predicted_index - self.sliding_window_duration: self.last_predicted_index]
+            start_index =self.last_predicted_index - self.sliding_window_duration
+            predictions = self.predictions[start_index: self.last_predicted_index]
         else:
-            return self.predictions[0:self.last_predicted_index]
+            start_index = 0
+            predictions = self.predictions[start_index:self.last_predicted_index]
+
+
+        return predictions,start_index
 
     def get_predictions_as_np_array(self):
         """
