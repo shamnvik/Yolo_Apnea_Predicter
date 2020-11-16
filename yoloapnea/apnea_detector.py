@@ -7,7 +7,6 @@ from .config import ImageConfig,YoloConfig
 from .predictions import Predictions
 from .yolo_signal_detector import YoloSignalDetector
 
-
 class ApneaDetector:
 
     def __init__(self,weights_path=YoloConfig.weights): #Todo, remove default weights
@@ -16,11 +15,10 @@ class ApneaDetector:
 
         self.signal_index = 0
         self.signal_length = 0
-        self.id = uuid.uuid1() #TODO id from parameters maybe? Could be used when making the detector concurrent
         self.signal = np.zeros(12 * 60 * 60 * 10)
 
         self.predictions = Predictions()
-        self.yolo = YoloSignalDetector(weights_path)
+        self.yolo = YoloSignalDetector(weights_path,YoloConfig.size,YoloConfig.iou,YoloConfig.score)
 
     def append_signal(self, signal):
         """
