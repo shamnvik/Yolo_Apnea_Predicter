@@ -39,7 +39,6 @@ class YoloSignalDetector:
                         "right": right_end}
 
                 predictions.append(pred)
-
         return predictions
 
     @staticmethod
