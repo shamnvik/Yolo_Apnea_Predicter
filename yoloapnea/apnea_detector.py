@@ -31,7 +31,6 @@ class ApneaDetector:
 
         self._signal[self.signal_length:self.signal_length + len(signal)] = signal
         self.signal_length += len(signal)
-        print("Predicting newly added signal")
         progress = progressbar.ProgressBar(max_value=self.signal_length)
         progress.update(self.signal_index)
         self._predict_unchecked_data(progress)
@@ -53,12 +52,13 @@ class ApneaDetector:
         If newly added data is less than {self.sliding_window_overlap} it predicts all the new data
         and whatever is needed before to reach {self.sliding_window_duration}
         """
-        unchecked_duration = self.signal_length - self.signal_index
 
         signal, self.signal_index, signal_start_index = self._get_next_unchecked_signal(self.signal, self.signal_index)
         self._predict_image(signal,signal_start_index)
 
         progress.update(self.signal_index)
+        unchecked_duration = self.signal_length - self.signal_index
+
         if unchecked_duration > 0:
             self._predict_unchecked_data(progress)
 
