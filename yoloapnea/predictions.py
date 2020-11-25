@@ -146,3 +146,17 @@ class Predictions:
         print()
 
 
+    def get_prediction_metrics(self):
+        print("Getting prediction metrics")
+        df = self.get_predictions_as_df()
+        print(df)
+        metrics = {}
+
+        metrics["event_count"] = len(df["start"])
+        metrics["mean_duration"] = df["duration"].mean()
+        metrics["recording_length_minutes"] = self.last_predicted_index/(60 * 10) # Hour * hz
+        metrics["calculated_ahi"] = (metrics["event_count"] / metrics["recording_length_minutes"])* 60
+
+        return metrics
+
+
