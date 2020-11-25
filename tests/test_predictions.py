@@ -162,5 +162,16 @@ class TestPredictions(TestCase):
         self.assertTrue(self.sliding_window_duration * 0.5 in df["start"].values)
         self.assertTrue(self.sliding_window_duration * 0.7 in df["end"].values)
 
-        print(df)
+    def test_get_prediction_metrics(self):
+        self.predictions.append_predictions(self.non_overlap_predictions, 0)
+        metrics = self.predictions.get_prediction_metrics()
+        self.assertIsNotNone(metrics)
+        self.assertIn("event_count",metrics)
+        self.assertIn("mean_duration",metrics)
+        self.assertIn("recording_length_minutes",metrics)
+        self.assertIn("calculated_ahi",metrics)
+
+        self.assertTrue(metrics["event_count"],2)
+        self.assertTrue(metrics["recording_length_minutes"],900/10/60)
+
 
