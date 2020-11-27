@@ -153,7 +153,7 @@ class Predictions:
         metrics = {}
 
         metrics["event_count"] = len(df["start"])
-        metrics["mean_duration"] = df["duration"].mean() if (len(df["start"] > 0) else 0
+        metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
         metrics["recording_length_minutes"] = self.last_predicted_index/(60 * 10) # Hour * hz
         metrics["calculated_ahi"] = (metrics["event_count"] / metrics["recording_length_minutes"])* 60
 
