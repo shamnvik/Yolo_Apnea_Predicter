@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 from xml.dom import minidom
 
@@ -166,12 +167,22 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
         metrics = self.predictions.get_prediction_metrics()
         self.assertIsNotNone(metrics)
-        self.assertIn("event_count",metrics)
-        self.assertIn("mean_duration",metrics)
-        self.assertIn("recording_length_minutes",metrics)
-        self.assertIn("calculated_ahi",metrics)
+        self.assertIn("event_count", metrics)
+        self.assertIn("mean_duration", metrics)
+        self.assertIn("recording_length_minutes", metrics)
+        self.assertIn("calculated_ahi", metrics)
 
-        self.assertTrue(metrics["event_count"],2)
-        self.assertTrue(metrics["recording_length_minutes"],900/10/60)
+        self.assertTrue(metrics["event_count"], 2)
+        self.assertTrue(metrics["recording_length_minutes"], 900 / 10 / 60)
+
+    def test_read_xml_annotations(self):
+        file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
+        self.predictions.read_xml_annotations(file)
+        self.assertTrue(self.predictions.ground_truth.max() != 0)
+        self.assertTrue(self.predictions.ground_truth[8717] == 1)
+        self.assertTrue(self.predictions.ground_truth[8716] == 1)
+        self.assertTrue(self.predictions.ground_truth[8715] == 0)
+        self.assertTrue(self.predictions.ground_truth[3039] == 2)
+        self.assertTrue(self.predictions.ground_truth[3036] == 0)
 
 

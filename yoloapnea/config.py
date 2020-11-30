@@ -10,7 +10,7 @@ class ImageConfig:
 
 class YoloConfig:
     size = 416
-    weights = r"C:\Users\Sondre Hamnvik\Documents\INF\Master\data\Weights\yolov3-416"
+    weights = r"C:\Users\Sondre Hamnvik\Documents\Master\data\Weights\yolov3-416"
     iou = 0.45
     score = 0.25
     pred_names = "tensorflow_yolov4/data/classes/coco.names"

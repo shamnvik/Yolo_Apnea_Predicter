@@ -2,6 +2,7 @@ import pickle
 
 import numpy as np
 import pandas as pd
+from lxml import etree
 
 from yattag import Doc, indent
 
@@ -12,6 +13,7 @@ class Predictions:
 
     def __init__(self):
         self.predictions = np.zeros(12 * 60 * 60 * 10)
+        self.ground_truth = np.zeros(12 * 60 * 60 * 10)
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.last_predicted_index = 0
 
@@ -158,5 +160,27 @@ class Predictions:
         metrics["calculated_ahi"] = (metrics["event_count"] / metrics["recording_length_minutes"])* 60
 
         return metrics
+
+    def read_xml_annotations(self,file):
+        print("reading XML annotations")
+
+        with open(file) as f:
+            start,end,apnea_type = 0,0,0
+            tree = etree.parse(f)
+            tree = tree.getroot()
+            for scored_event in tree.find("ScoredEvents"):
+                concept = scored_event.find("EventConcept")
+                if concept.text == "Obstructive apnea|Obstructive Apnea":
+                    start = int(float(scored_event.find("Start").text))
+                    end = start + int(float(scored_event.find("Duration").text))
+                    apnea_type = 1
+
+                elif concept.text == "Hypopnea|Hypopnea":
+                    start = int(float(scored_event.find("Start").text))
+                    end = start + int(float(scored_event.find("Duration").text))
+                    apnea_type = 2
+
+                self.ground_truth[start:end] = apnea_type
+
 
 

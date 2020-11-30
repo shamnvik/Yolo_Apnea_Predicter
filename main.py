@@ -15,8 +15,7 @@ class CLI:
         self.apnea_detector.append_signal(self.signal)
         predictions = self.apnea_detector.predictions
         xml = predictions.get_xml()
-        print(xml)
-        print(predictions.get_predictions_as_np_array())
+
 
     def readEdfFile(self,file):
         """Reads EDF file from SHHS dataset. Will need adjustments to work for other signals
