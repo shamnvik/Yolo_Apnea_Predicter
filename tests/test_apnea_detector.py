@@ -124,6 +124,6 @@ class TestApneaDetector(TestCase):
         appended_signal = apnea_predictor.signal
         np.testing.assert_almost_equal(true_signal, appended_signal, decimal=5)
         self.assertEqual(len(true_signal), apnea_predictor.signal_length)
-        df = apnea_predictor.predictions.get_predictions_as_df()
+        df = apnea_predictor.predictions.get_predictions_as_df(apnea_predictor.predictions.predictions)
         print(df)
 

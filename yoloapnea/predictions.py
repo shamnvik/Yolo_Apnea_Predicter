@@ -3,6 +3,9 @@ import pickle
 import numpy as np
 import pandas as pd
 from lxml import etree
+from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
+from sklearn import preprocessing
+from sklearn.preprocessing import binarize
 
 from yattag import Doc, indent
 
@@ -13,7 +16,8 @@ class Predictions:
 
     def __init__(self):
         self.predictions = np.zeros(12 * 60 * 60 * 10)
-        self.ground_truth = np.zeros(12 * 60 * 60 * 10)
+        self.ground_truth = None
+        self.ground_truth_length = 0
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.last_predicted_index = 0
 
@@ -42,13 +46,12 @@ class Predictions:
         """
         return self.predictions
 
-    def get_predictions_as_df(self):
+    def get_predictions_as_df(self,predictions):
 
-        with open('predictions_whole_recording.npy', 'wb') as f:
-            np.save(f,self.predictions)
+        # with open('predictions_whole_recording.npy', 'wb') as f:
+        #     np.save(f,self.predictions)
 
         # Taken from https://stackoverflow.com/questions/49491011/python-how-to-find-event-occurences-in-data
-        predictions = self.predictions
         indicators = (predictions > 0.0).astype(int)
         indicators_diff = np.concatenate([[0],indicators[1:] - indicators[:-1]])
         diff_locations = np.where(indicators_diff != 0)[0]
@@ -150,19 +153,49 @@ class Predictions:
 
     def get_prediction_metrics(self):
         print("Getting prediction metrics")
-        df = self.get_predictions_as_df()
-        print(df)
+        df = self.get_predictions_as_df(self.predictions)
         metrics = {}
+        prediction_metrics = {}
+        annotation_metrics = {}
 
-        metrics["event_count"] = len(df["start"])
-        metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
-        metrics["recording_length_minutes"] = self.last_predicted_index/(60 * 10) # Hour * hz
-        metrics["calculated_ahi"] = (metrics["event_count"] / metrics["recording_length_minutes"])* 60
+        prediction_metrics["event_count"] = len(df["start"])
+        prediction_metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
+        prediction_metrics["recording_length_minutes"] = self.last_predicted_index/(60 * 10) # Hour * hz
+        if prediction_metrics["recording_length_minutes"] > 0:
+            prediction_metrics["calculated_ahi"] = (prediction_metrics["event_count"] / prediction_metrics["recording_length_minutes"])* 60
+
+        metrics["prediction"] = prediction_metrics
+
+        if self.ground_truth is not None:
+            df = self.get_predictions_as_df(self.ground_truth)
+
+            annotation_metrics["event_count"] = len(df["start"])
+            annotation_metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
+
+            annotation_metrics["annotation_length_minutes"] = self.ground_truth_length / (60 * 10)
+            metric_end = int(float(max(self.ground_truth_length,self.last_predicted_index)))
+
+            if annotation_metrics["annotation_length_minutes"] > 0:
+                annotation_metrics["calculated_ahi"] = (annotation_metrics["event_count"] / annotation_metrics[
+                    "annotation_length_minutes"]) * 60
+
+            predictions = self.predictions[:metric_end]
+            ground_truth = self.ground_truth[:metric_end]
+            ground_truth_binary = np.ravel(binarize(ground_truth.reshape(1,-1), 0))
+            predictions_binary = np.ravel(binarize(predictions.reshape(1,-1), 0))
+
+            annotation_metrics["accuracy_score"] = accuracy_score(ground_truth_binary,predictions_binary)
+            annotation_metrics["f1_score"] = f1_score(ground_truth_binary, predictions_binary)
+            annotation_metrics["precision_score"] = precision_score(ground_truth_binary, predictions_binary)
+            annotation_metrics["recall_score"] = recall_score(ground_truth_binary, predictions_binary)
+
+            metrics["annotation"] = annotation_metrics
 
         return metrics
 
     def read_xml_annotations(self,file):
         print("reading XML annotations")
+        self.ground_truth = np.zeros(12 * 60 * 60 * 10)
 
         with open(file) as f:
             start,end,apnea_type = 0,0,0
@@ -182,5 +215,8 @@ class Predictions:
 
                 self.ground_truth[start:end] = apnea_type
 
-
+                if concept.text == "Recording Start Time":
+                    start = int(float(scored_event.find("Start").text))
+                    end = start + int(float(scored_event.find("Duration").text))
+                    self.ground_truth_length = end
 

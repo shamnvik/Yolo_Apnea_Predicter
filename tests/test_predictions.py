@@ -149,7 +149,7 @@ class TestPredictions(TestCase):
 
     def test_get_predictions_as_df(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
-        df = self.predictions.get_predictions_as_df()
+        df = self.predictions.get_predictions_as_df(self.predictions.predictions)
 
         self.assertTrue(self.sliding_window_duration * 0.2 in df["start"].values)
         self.assertTrue(self.sliding_window_duration * 0.4 in df["end"].values)
@@ -167,13 +167,15 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
         metrics = self.predictions.get_prediction_metrics()
         self.assertIsNotNone(metrics)
-        self.assertIn("event_count", metrics)
-        self.assertIn("mean_duration", metrics)
-        self.assertIn("recording_length_minutes", metrics)
-        self.assertIn("calculated_ahi", metrics)
+        self.assertIn("prediction",metrics)
+        prediction_metrics = metrics["prediction"]
+        self.assertIn("event_count", prediction_metrics)
+        self.assertIn("mean_duration", prediction_metrics)
+        self.assertIn("recording_length_minutes", prediction_metrics)
+        self.assertIn("calculated_ahi", prediction_metrics)
 
-        self.assertTrue(metrics["event_count"], 2)
-        self.assertTrue(metrics["recording_length_minutes"], 900 / 10 / 60)
+        self.assertTrue(prediction_metrics["event_count"], 2)
+        self.assertTrue(prediction_metrics["recording_length_minutes"], 900 / 10 / 60)
 
     def test_read_xml_annotations(self):
         file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
@@ -185,4 +187,11 @@ class TestPredictions(TestCase):
         self.assertTrue(self.predictions.ground_truth[3039] == 2)
         self.assertTrue(self.predictions.ground_truth[3036] == 0)
 
+    def test_get_prediction_metrics_compared_to_annotations(self):
+        file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
+        self.predictions.append_predictions(self.overlap_predictions, 0)
+        self.predictions.read_xml_annotations(file)
+        metrics = self.predictions.get_prediction_metrics()
+        self.assertTrue("annotation" in metrics)
+        print(metrics)
 
