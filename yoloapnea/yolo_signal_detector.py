@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from tensorflow.python.saved_model import tag_constants
-
+from pandas.core.common import flatten
 from .config import YoloConfig
 from .tensorflow_yolov4.core import utils
 
@@ -13,33 +13,74 @@ if len(physical_devices) > 0:
     tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
 
+CONF_THRESH, NMS_THRESH = 00, 0.5
+
+
 class YoloSignalDetector:
 
     loaded_model = None
 
-    def __init__(self,weights_path,input_size,iou,score):
+    def __init__(self,weights_path,input_size,iou,score,config_path=None):
         self.weights = weights_path
         self.input_size = input_size
         self.iou = iou
         self.score = score
 
         if YoloSignalDetector.loaded_model is None:
-            YoloSignalDetector.loaded_model = tf.saved_model.load(self.weights, tags=[tag_constants.SERVING])
+            YoloSignalDetector.loaded_model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
 
     def detect(self, signal, show_bbox=False):
+        print("running detect")
+        loaded_model = YoloSignalDetector.loaded_model
+        layers = loaded_model.getLayerNames()
+        output_layers = [layers[i[0] - 1] for i in loaded_model.getUnconnectedOutLayers()]
+
         image = self.signal_to_image(signal)
-        scores, boxes = self.infer_image(image, show_bbox=show_bbox)
+        height, width = image.shape[:2]
+        blob = cv2.dnn.blobFromImage(image, 0.00392, (416, 416), swapRB=True, crop=False)
 
-        predictions = []
-        for confidence, prediction in zip(scores, boxes):
-            if confidence > 0:
-                (_, left_start, _, right_end) = prediction
-                pred = {"confidence": confidence,
-                        "left": left_start,
-                        "right": right_end}
+        loaded_model.setInput(blob)
+        layer_outputs = loaded_model.forward(output_layers)
+        class_ids, confidences, b_boxes = [], [], []
 
-                predictions.append(pred)
-        return predictions
+        for output in layer_outputs:
+            for detection in output:
+                scores = detection[5:]
+                class_id = np.argmax(scores)
+                confidence = scores[class_id]
+
+                if confidence > CONF_THRESH:
+                    center_x, center_y, w, h = (detection[0:4] * np.array([width, height, width, height])).astype('int')
+
+                    x = int(center_x - w / 2)
+                    y = int(center_y - h / 2)
+
+                    b_boxes.append([x, y, int(w), int(h)])
+                    confidences.append(float(confidence))
+                    class_ids.append(int(class_id))
+
+        # Perform non maximum suppression for the bounding boxes to filter overlapping and low confident bounding boxes
+        class_ids, confidences, b_boxes
+        print(class_id)
+        print(confidences)
+        print(b_boxes)
+        for confidence,(x_pos, _, width, _) in zip(confidences,b_boxes):
+            print(f"Prediction conf:{confidence} x_pos:{x_pos} width:{width}")
+
+
+        # image = self.signal_to_image(signal)
+        # scores, boxes = self.infer_image(image, show_bbox=show_bbox)
+        #
+        # predictions = []
+        # for confidence, prediction in zip(scores, boxes):
+        #     if confidence > 0:
+        #         (_, left_start, _, right_end) = prediction
+        #         pred = {"confidence": confidence,
+        #                 "left": left_start,
+        #                 "right": right_end}
+        #
+        #         predictions.append(pred)
+        # return predictions
 
     @staticmethod
     def signal_to_image(signal):
