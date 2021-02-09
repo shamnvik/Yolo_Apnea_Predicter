@@ -7,7 +7,7 @@
 <EventType/>
 <EventConcept>Recording Start Time</EventConcept>
 <Start>0</Start>
-<Duration>32370.0</Duration>
+    <Duration>32370.0</Duration>
 <ClockTime>00.00.00 00.00.00</ClockTime>
 </ScoredEvent>
 <ScoredEvent>

@@ -18,6 +18,7 @@ class ApneaDetector:
         self.signal = np.zeros(12 * 60 * 60 * 10)
 
         self.predictions = Predictions()
+        print(weights_path)
         self.yolo = YoloSignalDetector(weights_path,YoloConfig.size,YoloConfig.iou,YoloConfig.score)
 
     def append_signal(self, signal):

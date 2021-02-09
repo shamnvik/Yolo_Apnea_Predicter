@@ -1,11 +1,12 @@
 import pickle
+import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
 from lxml import etree
-from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score, roc_curve, auc
 from sklearn import preprocessing
-from sklearn.preprocessing import binarize
+from sklearn.preprocessing import binarize, label_binarize
 
 from yattag import Doc, indent
 
@@ -20,6 +21,7 @@ class Predictions:
         self.ground_truth_length = 0
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.last_predicted_index = 0
+        self.last_ground_truth_index = 0
 
     def get_last_predictions(self):
         """
@@ -150,46 +152,70 @@ class Predictions:
 
         print()
 
+    def get_array_statistics(self,array,length):
+        df = self.get_predictions_as_df(array)
+        statistics = {}
+        statistics["event_count"] = len(df["start"])
+        statistics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
+
+        statistics["recording_length_minutes"] = length/(60 * 10) # Hour * hz
+        print(len(array))
+
+        if statistics["recording_length_minutes"] > 0:
+            statistics["calculated_ahi"] = (statistics["event_count"] / statistics["recording_length_minutes"])* 60
+        return statistics
+
+    def get_evaluation_metrics(self):
+        annotation_metrics = {}
+
+        metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
+        predictions = self.predictions[:metric_end]
+        ground_truth = self.ground_truth[:metric_end]
+        ground_truth_binary = np.ravel(binarize(ground_truth.reshape(1, -1), threshold=0))
+        predictions_binary = np.ravel(binarize(predictions.reshape(1, -1), threshold=0))
+
+        annotation_metrics["accuracy_score"] = accuracy_score(ground_truth_binary, predictions_binary)
+        annotation_metrics["f1_score"] = f1_score(ground_truth_binary, predictions_binary)
+        annotation_metrics["precision_score"] = precision_score(ground_truth_binary, predictions_binary)
+        annotation_metrics["recall_score"] = recall_score(ground_truth_binary, predictions_binary)
+
+        fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
+        annotation_metrics["roc"] = {"fpr" : fpr, "tpr": tpr, "treshold":threshold}
+
+        return annotation_metrics
+
+    def plot_roc(self):
+
+        print(self.ground_truth_length)
+        print(self.last_predicted_index)
+
+        metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
+        predictions = self.predictions[:metric_end]
+        ground_truth = self.ground_truth[:metric_end]
+
+        ground_truth[ground_truth>1] = 0 # Filters Hypopnea|Hypopnea out as the model has only been training on OSA
+
+        fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
+        roc_auc = auc(fpr, tpr)
+        plt.title('Receiver Operating Characteristic')
+        plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
+        plt.legend(loc='lower right')
+        plt.plot([0, 1], [0, 1], 'r--')
+        plt.xlim([0, 1])
+        plt.ylim([0, 1])
+        plt.ylabel('True Positive Rate')
+        plt.xlabel('False Positive Rate')
+        plt.show()
 
     def get_prediction_metrics(self):
         print("Getting prediction metrics")
-        df = self.get_predictions_as_df(self.predictions)
         metrics = {}
-        prediction_metrics = {}
-        annotation_metrics = {}
 
-        prediction_metrics["event_count"] = len(df["start"])
-        prediction_metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
-        prediction_metrics["recording_length_minutes"] = self.last_predicted_index/(60 * 10) # Hour * hz
-        if prediction_metrics["recording_length_minutes"] > 0:
-            prediction_metrics["calculated_ahi"] = (prediction_metrics["event_count"] / prediction_metrics["recording_length_minutes"])* 60
-
-        metrics["prediction"] = prediction_metrics
+        metrics["prediction"] = self.get_array_statistics(self.predictions,self.last_predicted_index)
 
         if self.ground_truth is not None:
-            df = self.get_predictions_as_df(self.ground_truth)
-
-            annotation_metrics["event_count"] = len(df["start"])
-            annotation_metrics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
-
-            annotation_metrics["annotation_length_minutes"] = self.ground_truth_length / (60 * 10)
-            metric_end = int(float(max(self.ground_truth_length,self.last_predicted_index)))
-
-            if annotation_metrics["annotation_length_minutes"] > 0:
-                annotation_metrics["calculated_ahi"] = (annotation_metrics["event_count"] / annotation_metrics[
-                    "annotation_length_minutes"]) * 60
-
-            predictions = self.predictions[:metric_end]
-            ground_truth = self.ground_truth[:metric_end]
-            ground_truth_binary = np.ravel(binarize(ground_truth.reshape(1,-1), 0))
-            predictions_binary = np.ravel(binarize(predictions.reshape(1,-1), 0))
-
-            annotation_metrics["accuracy_score"] = accuracy_score(ground_truth_binary,predictions_binary)
-            annotation_metrics["f1_score"] = f1_score(ground_truth_binary, predictions_binary)
-            annotation_metrics["precision_score"] = precision_score(ground_truth_binary, predictions_binary)
-            annotation_metrics["recall_score"] = recall_score(ground_truth_binary, predictions_binary)
-
-            metrics["annotation"] = annotation_metrics
+            metrics["ground_truth"] = self.get_array_statistics(self.ground_truth, self.ground_truth_length)
+            metrics["comparison"] = self.get_evaluation_metrics()
 
         return metrics
 
@@ -218,5 +244,5 @@ class Predictions:
                 if concept.text == "Recording Start Time":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    self.ground_truth_length = end
+                    self.ground_truth_length = end * 10 # "Duration" is in seconds, converting to deciseconds
 

@@ -4,7 +4,8 @@ from xml.dom import minidom
 
 from yoloapnea.config import ImageConfig
 from yoloapnea.predictions import Predictions
-
+import pprint
+import numpy as np
 
 class TestPredictions(TestCase):
 
@@ -192,6 +193,21 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.overlap_predictions, 0)
         self.predictions.read_xml_annotations(file)
         metrics = self.predictions.get_prediction_metrics()
-        self.assertTrue("annotation" in metrics)
-        print(metrics)
+        self.assertTrue("comparison" in metrics)
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(metrics)
 
+
+    def test_plot_roc(self):
+        file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
+        print(os.path.isfile(file))
+        with open("shhs1-200002-predictions.npy","rb") as arr:
+            predictions = np.load(arr)
+            self.predictions.predictions = predictions
+            self.predictions.last_predicted_index = len(predictions)
+            self.predictions.read_xml_annotations(file)
+            self.predictions.plot_roc()
+
+            print(np.unique(self.predictions.predictions))
+            print(np.unique(self.predictions.ground_truth))
+            print(self.predictions.ground_truth[:1000])

@@ -127,3 +127,12 @@ class TestApneaDetector(TestCase):
         df = apnea_predictor.predictions.get_predictions_as_df(apnea_predictor.predictions.predictions)
         print(df)
 
+    def test_save_prediction_array(self):
+        apnea_predictor = ApneaDetector()
+        test_signal = np.load("shhs1-200002-signal.npz")["abdo_res"]
+        print(test_signal)
+        apnea_predictor.append_signal(test_signal)
+
+        with open("shhs1-200002-predictions.npy","wb") as f:
+            np.save(f,apnea_predictor.predictions.predictions[:apnea_predictor.predictions.last_predicted_index])
+
