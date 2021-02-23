@@ -1,6 +1,6 @@
 import os
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '1'  # Disables extra info output from tensorflow
 
 
 class ImageConfig:
@@ -10,8 +10,8 @@ class ImageConfig:
 
 class YoloConfig:
     size = 416
-    weights = r"C:\Users\Sondre Hamnvik\Documents\INF\Master\div\src_old\Yolo4Apnea\yolo-obj_last.weights"
-    configs = r"C:\Users\Sondre Hamnvik\Documents\INF\Master\div\src_old\Yolo4Apnea\yolo-obj.cfg"
+    weights = r"C:\Users\Sondre Hamnvik\Downloads\yolov4.weights"
+    configs = r"C:\Users\Sondre Hamnvik\Downloads\yolov4.cfg"
     iou = 0.45
     score = 0.25
     pred_names = "tensorflow_yolov4/data/classes/coco.names"

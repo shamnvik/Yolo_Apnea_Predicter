@@ -1,10 +1,11 @@
 from unittest import TestCase
+from pathlib import Path
 
 import numpy as np
 import random
 from yoloapnea.apnea_detector import ApneaDetector
 from yoloapnea.config import ImageConfig
-
+import os
 
 class TestApneaDetector(TestCase):
 
@@ -15,14 +16,21 @@ class TestApneaDetector(TestCase):
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.sliding_window_overlap = ImageConfig.sliding_window_overlap
 
+
+        self.weights_path = str(Path(os.getcwd(),"yolo-obj_last.weights"))
+        self.config_path = str(Path(os.getcwd(),"yolo-obj.cfg"))
+        self.apnea_predictor = ApneaDetector(self.weights_path,self.config_path)
+
+
     def test_append_signal_too_little_data(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
+
         apnea_predictor.append_signal(self.abdo_signal[0:700])
-        predictions = apnea_predictor.predictions.get_predictions_as_np_array()
+        predictions = self.apnea_predictor.predictions.get_predictions_as_np_array()
         np.testing.assert_almost_equal(self.abdo_signal[0:700], apnea_predictor.signal, decimal=5)
 
     def test_append_signal_many_small_appends(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
 
         i = 0
         while i < 100:
@@ -35,7 +43,7 @@ class TestApneaDetector(TestCase):
         predictions = apnea_predictor.predictions.get_predictions_as_np_array()
 
     def test_append_signal(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         apnea_predictor.append_signal(self.abdo_signal[0:900])
         apnea_predictor.append_signal(self.abdo_signal[900:1500])
         true_signal = self.abdo_signal[0:1500]
@@ -44,7 +52,7 @@ class TestApneaDetector(TestCase):
         self.assertEqual(1500, apnea_predictor.signal_length)
 
     def test_append_signal_long(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         apnea_predictor.append_signal(self.abdo_signal[0:900])
         apnea_predictor.append_signal(self.abdo_signal[900:1500])
         apnea_predictor.append_signal(self.abdo_signal[1500:10000])
@@ -54,8 +62,8 @@ class TestApneaDetector(TestCase):
         self.assertEqual(10000, apnea_predictor.signal_length)
 
     def test_append_signal_multiple_detectors(self):
-        apnea_predictor_1 = ApneaDetector()
-        apnea_predictor_2 = ApneaDetector()
+        apnea_predictor_1 = self.apnea_predictor
+        apnea_predictor_2 = ApneaDetector(self.weights_path,self.config_path)
         apnea_predictor_1.append_signal(self.abdo_signal[0:900])
         apnea_predictor_1.append_signal(self.abdo_signal[900:1500])
 
@@ -69,7 +77,7 @@ class TestApneaDetector(TestCase):
 
 
     def test__get_next_unchecked_signal_little_data(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         small_index = 30
         medium_index = 50
         start_index = 0
@@ -90,7 +98,7 @@ class TestApneaDetector(TestCase):
         self.assertEqual(len(prediction), self.sliding_window_duration)
 
     def test__get_next_unchecked_signal_not_enough_remaining_data_in_signal(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         data_index = 1200
         start_index = 1100
 
@@ -102,7 +110,7 @@ class TestApneaDetector(TestCase):
                              list(self.abdo_signal[data_index - self.sliding_window_duration:data_index]))
 
     def test__get_next_unchecked_signal_long_insert(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         large_index = 5000
         start_index = 0
 
@@ -118,7 +126,7 @@ class TestApneaDetector(TestCase):
         self.assertEqual(len(prediction), self.sliding_window_duration)
 
     def test_append_signal_analyze_whole_recording(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         apnea_predictor.append_signal(self.abdo_signal)
         true_signal = self.abdo_signal
         appended_signal = apnea_predictor.signal
@@ -128,7 +136,7 @@ class TestApneaDetector(TestCase):
         print(df)
 
     def test_save_prediction_array(self):
-        apnea_predictor = ApneaDetector()
+        apnea_predictor = self.apnea_predictor
         test_signal = np.load("shhs1-200002-signal.npz")["abdo_res"]
         print(test_signal)
         apnea_predictor.append_signal(test_signal)

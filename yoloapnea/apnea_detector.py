@@ -9,7 +9,7 @@ from .yolo_signal_detector import YoloSignalDetector
 
 class ApneaDetector:
 
-    def __init__(self,weights_path=YoloConfig.weights): #Todo, remove default weights
+    def __init__(self,weights_path,config_path): #Todo, remove default weights
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.sliding_window_overlap = ImageConfig.sliding_window_overlap
 
@@ -19,7 +19,7 @@ class ApneaDetector:
 
         self.predictions = Predictions()
         print(weights_path)
-        self.yolo = YoloSignalDetector(weights_path,YoloConfig.size,YoloConfig.iou,YoloConfig.score)
+        self.yolo = YoloSignalDetector(weights_path,YoloConfig.size,YoloConfig.iou,YoloConfig.score,config_path)
 
     def append_signal(self, signal):
         """
@@ -96,4 +96,6 @@ class ApneaDetector:
                 since start of recording
         """
         detections = self.yolo.detect(signal, show_bbox=False)
+        print("detections")
+        print(detections)
         self.predictions.append_predictions(detections, start_index)
