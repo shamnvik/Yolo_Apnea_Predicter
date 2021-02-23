@@ -97,30 +97,25 @@ class YoloSignalDetector:
         idxs = cv2.dnn.NMSBoxes(boxes, confidences, CONF_THRESH,
                                 NMS_THRESH)
 
-        print(idxs)
-        print(type(idxs))
-        print(len(idxs))
+
         if len(idxs) > 0:
             for i in idxs.flatten():
                 # extract the bounding box coordinates
-                print(confidences[i])
-                print(classIDs[i])
                 (x, y) = (boxes[i][0], boxes[i][1])
                 (w, h) = (boxes[i][2], boxes[i][3])
-                print(x,y,w,h)
-                print(width)
-                print(height)
-                print(W)
-                print(H)
+
                 confidence = confidences[i]
                 left_start = x/W
-                print(left_start)
                 right_end = (x+w)/W
-                print(right_end)
+
+                left_start = 0 if left_start < 0 else left_start
+                right_end = 1 if right_end > 1 else right_end
+
                 pred = {"confidence": confidence,
                                     "left": left_start,
                                     "right": right_end}
                 predictions.append(pred)
+                print(pred)
         return predictions
 
         # image = self.signal_to_image(signal)
