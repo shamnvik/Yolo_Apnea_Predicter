@@ -9,11 +9,6 @@ from .config import YoloConfig
 from .tensorflow_yolov4.core import utils
 import os
 
-physical_devices = tf.config.experimental.list_physical_devices('GPU')
-if len(physical_devices) > 0:
-    tf.config.experimental.set_memory_growth(physical_devices[0], True)
-
-
 CONF_THRESH, NMS_THRESH = 0.0, 0.5
 
 
@@ -21,13 +16,14 @@ class YoloSignalDetector:
 
     loaded_model = None
 
-    def __init__(self,weights_path : str,input_size,iou,score,config_path : str):
+    def __init__(self, weights_path : str, input_size, iou, score, config_path : str):
         self.weights = weights_path
         self.input_size = input_size
         self.iou = iou
         self.score = score
 
         if YoloSignalDetector.loaded_model is None:
+
             print("loading model")
 
             print(f"Config path:{config_path} weights path: {weights_path}")
@@ -132,6 +128,7 @@ class YoloSignalDetector:
         #         predictions.append(pred)
         # return predictions
 
+    #Maybe write this to it's own class? SignalPlotter
     @staticmethod
     def signal_to_image(signal):
         fig, ax = plt.subplots(figsize=(10, 10))
@@ -166,26 +163,3 @@ class YoloSignalDetector:
         batch_data = tf.constant(images_data)
         pred_bbox = infer(batch_data)
 
-        boxes, pred_conf = None, None
-
-        for key, value in pred_bbox.items():
-            boxes = value[:, :, 0:4]
-            pred_conf = value[:, :, 4:]
-
-        boxes, scores, classes, valid_detections = tf.image.combined_non_max_suppression(
-            boxes=tf.reshape(boxes, (tf.shape(boxes)[0], -1, 1, 4)),
-            scores=tf.reshape(
-                pred_conf, (tf.shape(pred_conf)[0], -1, tf.shape(pred_conf)[-1])),
-            max_output_size_per_class=50,
-            max_total_size=50,
-            iou_threshold=self.iou,
-            score_threshold=self.score
-        )
-        pred_bbox = [boxes.numpy(), scores.numpy(), classes.numpy(), valid_detections.numpy()]
-
-        if show_bbox:
-            image = utils.draw_bbox(original_image, pred_bbox)
-            image = Image.fromarray(image.astype(np.uint8))
-            image.show()
-
-        return scores.numpy()[0], boxes.numpy()[0]

@@ -9,7 +9,7 @@ from .yolo_signal_detector import YoloSignalDetector
 
 class ApneaDetector:
 
-    def __init__(self,weights_path,config_path): #Todo, remove default weights
+    def __init__(self,weights_path,config_path):
         self.sliding_window_duration = ImageConfig.sliding_window_duration
         self.sliding_window_overlap = ImageConfig.sliding_window_overlap
 
