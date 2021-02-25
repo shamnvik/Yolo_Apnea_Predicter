@@ -4,7 +4,8 @@ from xml.dom import minidom
 
 from yoloapnea.config import ImageConfig
 from yoloapnea.predictions import Predictions
-
+import pprint
+import numpy as np
 
 class TestPredictions(TestCase):
 
@@ -60,16 +61,13 @@ class TestPredictions(TestCase):
         self.assertEqual(start_index, 0)
 
     def test_get_last_predictions_with_some_data(self):
-        self.predictions.append_predictions(
-            self.non_overlap_predictions, -int(self.sliding_window_duration * 0.3))
+        self.predictions.append_predictions(self.non_overlap_predictions, -int(self.sliding_window_duration * 0.3))
         last_pred, start_index = self.predictions.get_last_predictions()
         self.assertEqual(len(last_pred), self.sliding_window_duration * 0.7)
         self.assertEqual(start_index, 0)
 
     def test_get_last_predictions_with_enough_data(self):
-        self.predictions.append_predictions(
-            self.non_overlap_predictions, int(
-                self.sliding_window_duration * 3))
+        self.predictions.append_predictions(self.non_overlap_predictions, int(self.sliding_window_duration * 3))
         last_pred, start_index = self.predictions.get_last_predictions()
         self.assertEqual(len(last_pred), self.sliding_window_duration)
         self.assertEqual(start_index, self.sliding_window_duration * 3)
@@ -112,63 +110,37 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.2)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.199)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.23)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.39)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.40)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.41)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.47)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.5)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.499)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.51)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.699)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.7)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.85)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.199)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.23)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.39)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.40)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.41)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.47)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.5)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.499)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.51)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.699)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.7)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_append_predictions_with_overlap(self):
         self.predictions.append_predictions(self.overlap_predictions, 0)
         pred_array = self.predictions.predictions
 
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.2)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.199)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.23)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.39)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.40)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.41)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.47)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.59)], 70)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.6)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.61)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.699)], 65)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.7)], 0)
-        self.assertEqual(
-            pred_array[int(self.sliding_window_duration * 0.85)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.2)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.199)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.23)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.39)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.40)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.41)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.47)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.59)], 70)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.6)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.61)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.699)], 65)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.7)], 0)
+        self.assertEqual(pred_array[int(self.sliding_window_duration * 0.85)], 0)
 
     def test_get_xml(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
@@ -178,38 +150,25 @@ class TestPredictions(TestCase):
 
     def test_get_predictions_as_df(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
-        df = self.predictions.get_predictions_as_df(
-            self.predictions.predictions)
+        df = self.predictions.get_predictions_as_df(self.predictions.predictions)
 
-        self.assertTrue(
-            self.sliding_window_duration *
-            0.2 in df["start"].values)
+        self.assertTrue(self.sliding_window_duration * 0.2 in df["start"].values)
         self.assertTrue(self.sliding_window_duration * 0.4 in df["end"].values)
 
-        self.assertFalse(
-            self.sliding_window_duration *
-            0.1 in df["start"].values)
-        self.assertFalse(
-            self.sliding_window_duration *
-            0.1 in df["end"].values)
+        self.assertFalse(self.sliding_window_duration * 0.1 in df["start"].values)
+        self.assertFalse(self.sliding_window_duration * 0.1 in df["end"].values)
 
-        self.assertFalse(
-            self.sliding_window_duration *
-            0.45 in df["start"].values)
-        self.assertFalse(
-            self.sliding_window_duration *
-            0.35 in df["end"].values)
+        self.assertFalse(self.sliding_window_duration * 0.45 in df["start"].values)
+        self.assertFalse(self.sliding_window_duration * 0.35 in df["end"].values)
 
-        self.assertTrue(
-            self.sliding_window_duration *
-            0.5 in df["start"].values)
+        self.assertTrue(self.sliding_window_duration * 0.5 in df["start"].values)
         self.assertTrue(self.sliding_window_duration * 0.7 in df["end"].values)
 
     def test_get_prediction_metrics(self):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
         metrics = self.predictions.get_prediction_metrics()
         self.assertIsNotNone(metrics)
-        self.assertIn("prediction", metrics)
+        self.assertIn("prediction",metrics)
         prediction_metrics = metrics["prediction"]
         self.assertIn("event_count", prediction_metrics)
         self.assertIn("mean_duration", prediction_metrics)
@@ -217,9 +176,7 @@ class TestPredictions(TestCase):
         self.assertIn("calculated_ahi", prediction_metrics)
 
         self.assertTrue(prediction_metrics["event_count"], 2)
-        self.assertTrue(
-            prediction_metrics["recording_length_minutes"],
-            900 / 10 / 60)
+        self.assertTrue(prediction_metrics["recording_length_minutes"], 900 / 10 / 60)
 
     def test_read_xml_annotations(self):
         file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
@@ -236,5 +193,21 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.overlap_predictions, 0)
         self.predictions.read_xml_annotations(file)
         metrics = self.predictions.get_prediction_metrics()
-        self.assertTrue("annotation" in metrics)
-        print(metrics)
+        self.assertTrue("comparison" in metrics)
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(metrics)
+
+
+    def test_plot_roc(self):
+        file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
+        print(os.path.isfile(file))
+        with open("shhs1-200002-predictions.npy","rb") as arr:
+            predictions = np.load(arr)
+            self.predictions.predictions = predictions
+            self.predictions.last_predicted_index = len(predictions)
+            self.predictions.read_xml_annotations(file)
+            self.predictions.plot_roc()
+
+            print(np.unique(self.predictions.predictions))
+            print(np.unique(self.predictions.ground_truth))
+            print(self.predictions.ground_truth[:1000])
