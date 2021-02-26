@@ -1,12 +1,9 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
 from PIL import Image
-from tensorflow.python.saved_model import tag_constants
 from pandas.core.common import flatten
 from .config import YoloConfig
-from .tensorflow_yolov4.core import utils
 import os
 
 CONF_THRESH, NMS_THRESH = 0.0, 0.5
@@ -128,25 +125,7 @@ class YoloSignalDetector:
         #         predictions.append(pred)
         # return predictions
 
-    #Maybe write this to it's own class? SignalPlotter
-    @staticmethod
-    def signal_to_image(signal):
-        fig, ax = plt.subplots(figsize=(10, 10))
-        ax.plot(signal)
-        ax.set_ylim(-1, 1)
 
-        fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
-        ax.grid(False)
-        plt.axis('off')
-        ax.set_xlim(0, 900)
-
-        fig.canvas.draw()
-        img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-        img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        plt.close(fig)
-
-        return img
 
     def infer_image(self, image, show_bbox=False):
         original_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)

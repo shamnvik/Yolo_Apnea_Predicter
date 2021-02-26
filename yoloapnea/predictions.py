@@ -150,7 +150,6 @@ class Predictions:
         np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
                    out=self.predictions[prediction["start"]:prediction["end"]])
 
-        print()
 
     def get_array_statistics(self,array,length):
         df = self.get_predictions_as_df(array)
