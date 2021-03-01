@@ -14,7 +14,7 @@ class TestSignalPlotter(TestCase):
         test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
 
-        self.plotter = signalplotter.SignalPlotter()
+        self.plotter = signalplotter.SignalPlotter(image_duration,overlap)
 
     def test_plot_signal_correct_length(self):
         part_signal = self.abdo_signal[0:image_duration]

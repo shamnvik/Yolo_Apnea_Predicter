@@ -5,10 +5,10 @@ import cv2
 
 class SignalPlotter:
 
-    def __init__(self):
+    def __init__(self,image_duration,sliding_window_overlap):
         print("init signal plotter")
-        self.image_duration = 900 #TODO placeholder,add to constructor
-        self.sliding_window_overlap = 450 #TODO placeholder, add to constructor
+        self.image_duration = image_duration #TODO placeholder,add to constructor
+        self.sliding_window_overlap = sliding_window_overlap #TODO placeholder, add to constructor
 
     def plot_signal(self,signal):
 
@@ -37,7 +37,7 @@ class SignalPlotter:
 
 
 
-    def signal_to_image(self,signal):
+    def signal_to_image(self,signal,start=0,end=self.image_duration):
         print("plotting of len")
         print(len(signal))
         fig, ax = plt.subplots(figsize=(10, 10))
@@ -47,7 +47,7 @@ class SignalPlotter:
         fig.subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0, wspace=0)
         ax.grid(False)
         plt.axis('off')
-        ax.set_xlim(0, 900)
+        ax.set_xlim(start, end)
 
         fig.canvas.draw()
         img = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
