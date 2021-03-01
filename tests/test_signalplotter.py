@@ -19,7 +19,7 @@ class TestSignalPlotter(TestCase):
     def test_plot_signal_correct_length(self):
         part_signal = self.abdo_signal[0:image_duration]
         images = self.plotter.plot_signal(part_signal)
-        for img in images:
+        for start_index, img in images:
             shape = img.shape
             self.assertEqual(shape[0],1000)
             self.assertEqual(shape[1],1000)
@@ -33,7 +33,8 @@ class TestSignalPlotter(TestCase):
         part_signal = self.abdo_signal[0:image_duration-200]
 
         with self.assertRaises(Exception):
-            self.plotter.plot_signal(part_signal)
+            for _, img in self.plotter.plot_signal(part_signal):
+                pass
 
 
 
@@ -43,7 +44,7 @@ class TestSignalPlotter(TestCase):
 
         image_count = 0
 
-        for img in images:
+        for _,img in images:
             shape = img.shape
             self.assertEqual(shape[0], 1000)
             self.assertEqual(shape[1], 1000)
@@ -58,7 +59,7 @@ class TestSignalPlotter(TestCase):
 
         image_count = 0
 
-        for img in images:
+        for _,img in images:
             shape = img.shape
             self.assertEqual(shape[0], 1000)
             self.assertEqual(shape[1], 1000)
@@ -74,7 +75,7 @@ class TestSignalPlotter(TestCase):
 
         image_count = 0
 
-        for img in images:
+        for _,img in images:
             shape = img.shape
             self.assertEqual(shape[0], 1000)
             self.assertEqual(shape[1], 1000)
@@ -91,13 +92,12 @@ class TestSignalPlotter(TestCase):
 
         image_count = 0
 
-        for start_index, img in images:
+        for _, img in images:
             shape = img.shape
             self.assertEqual(shape[0], 1000)
             self.assertEqual(shape[1], 1000)
             self.assertEqual(shape[2], 3)
             image_count += 1
-            print(start_index)
 
 
         self.assertEqual(3, image_count)

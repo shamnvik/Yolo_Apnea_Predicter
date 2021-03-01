@@ -30,21 +30,19 @@ class YoloSignalDetector:
             YoloSignalDetector.loaded_model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
             print("model loaded")
 
-    def detect(self, signal, show_bbox=False):
+    def detect(self, img, show_bbox=False):
         print("running detect")
         loaded_model = YoloSignalDetector.loaded_model
         layers = loaded_model.getLayerNames()
         output_layers = [layers[i[0] - 1] for i in loaded_model.getUnconnectedOutLayers()]
 
-        image = self.signal_to_image(signal)
-
 
         # from https://cloudxlab.com/blog/object-detection-yolo-and-python-pydarknet/
         #image = cv2.imread(r"C:\Users\Sondre Hamnvik\Downloads\dog.jpg")
-        (H, W) = image.shape[:2]
+        (H, W) = img.shape[:2]
 
-        height, width = image.shape[:2]
-        blob = cv2.dnn.blobFromImage(image, 0.00392, (416, 416), swapRB=True, crop=False)
+        height, width = img.shape[:2]
+        blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), swapRB=True, crop=False)
 
         loaded_model.setInput(blob)
         layer_outputs = loaded_model.forward(output_layers)

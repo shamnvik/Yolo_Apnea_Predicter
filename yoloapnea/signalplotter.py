@@ -11,8 +11,10 @@ class SignalPlotter:
         self.sliding_window_overlap = 450 #TODO placeholder, add to constructor
 
     def plot_signal(self,signal):
+
         remaining_signal = len(signal)
         start_index = 0
+        print(len(signal))
 
         if remaining_signal < self.image_duration:
             raise Exception("Signal length is too short")
@@ -20,7 +22,7 @@ class SignalPlotter:
         while remaining_signal > 0:
 
             if remaining_signal == self.image_duration:
-                yield start_index,self.signal_to_image(signal)
+                yield start_index,self.signal_to_image(signal[-self.image_duration:])
                 remaining_signal= 0
 
             elif remaining_signal > self.image_duration:
@@ -36,6 +38,8 @@ class SignalPlotter:
 
 
     def signal_to_image(self,signal):
+        print("plotting of len")
+        print(len(signal))
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.plot(signal)
         ax.set_ylim(-1, 1)
@@ -50,5 +54,9 @@ class SignalPlotter:
         img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         plt.close(fig)
+
+        #cv2.imshow('image', img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
 
         return img
