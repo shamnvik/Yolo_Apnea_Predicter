@@ -37,9 +37,11 @@ class SignalPlotter:
 
 
 
-    def signal_to_image(self,signal,start=0,end=self.image_duration):
+    def signal_to_image(self,signal,start=0,end=None):
         print("plotting of len")
         print(len(signal))
+        if end is None:
+            end = self.image_duration
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.plot(signal)
         ax.set_ylim(-1, 1)

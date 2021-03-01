@@ -23,7 +23,7 @@ class ApneaDetector:
         self.config = config_path
 
         self.predictions = Predictions()
-        self.signalPlotter = SignalPlotter()
+        self.signalPlotter = SignalPlotter(self.sliding_window_duration,self.sliding_window_overlap)
 
         self.yolo = YoloSignalDetector(self.weights,YoloConfig.size,YoloConfig.iou,YoloConfig.score,self.config)
 
