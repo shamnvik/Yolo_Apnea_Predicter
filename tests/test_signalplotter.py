@@ -25,9 +25,9 @@ class TestSignalPlotter(TestCase):
             self.assertEqual(shape[1],1000)
             self.assertEqual(shape[2],3)
 
-        cv2.imshow('image', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        # cv2.imshow('image', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
 
     def test_plot_signal_short_length(self):
         part_signal = self.abdo_signal[0:image_duration-200]

@@ -15,13 +15,22 @@ from .config import ImageConfig
 
 class Predictions:
 
-    def __init__(self):
-        self.predictions = np.zeros(12 * 60 * 60 * 10)
-        self.ground_truth = None
+    def __init__(self,sliding_window_duration):
+        self._predictions = np.zeros(12 * 60 * 60 * 10)
+        self._ground_truth = None
         self.ground_truth_length = 0
-        self.sliding_window_duration = ImageConfig.sliding_window_duration
+        self.sliding_window_duration = sliding_window_duration
         self.last_predicted_index = 0
         self.last_ground_truth_index = 0
+
+    @property
+    def predictions(self):
+        return self._predictions[:self.last_predicted_index]
+
+    @property
+    def ground_truth(self):
+        return self._ground_truth[:self.ground_truth_length]
+
 
     def get_last_predictions(self):
         """
@@ -40,6 +49,12 @@ class Predictions:
 
 
         return predictions,start_index
+
+    def get_predictions_and_ground_truth(self):
+        print("getting predictions and ground truth")
+        print(len(self.predictions))
+        print(len(self.ground_truth))
+        return self.predictions, self.ground_truth
 
     def get_predictions_as_np_array(self):
         """
@@ -81,6 +96,8 @@ class Predictions:
                             the image it was detected on
         :param start_index: index in the signal of the leftmost pixel in the image yolo was run on.
         """
+
+
 
         for detection in detections:
             confidence = detection["confidence"]
@@ -147,8 +164,11 @@ class Predictions:
         :param prediction: Prediction dictionary with keys: start, end & confidence
         """
 
-        np.maximum(self.predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
-                   out=self.predictions[prediction["start"]:prediction["end"]])
+        print("inserting new prediction")
+        print(self._predictions)
+
+        np.maximum(self._predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
+                   out=self._predictions[prediction["start"]:prediction["end"]])
 
 
     def get_array_statistics(self,array,length):
@@ -220,7 +240,7 @@ class Predictions:
 
     def read_xml_annotations(self,file):
         print("reading XML annotations")
-        self.ground_truth = np.zeros(12 * 60 * 60 * 10)
+        self._ground_truth = np.zeros(12 * 60 * 60 * 10)
 
         with open(file) as f:
             start,end,apnea_type = 0,0,0
@@ -238,7 +258,7 @@ class Predictions:
                     end = start + int(float(scored_event.find("Duration").text))
                     apnea_type = 2
 
-                self.ground_truth[start:end] = apnea_type
+                self._ground_truth[start:end] = apnea_type
 
                 if concept.text == "Recording Start Time":
                     start = int(float(scored_event.find("Start").text))

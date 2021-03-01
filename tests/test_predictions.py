@@ -7,11 +7,12 @@ from yoloapnea.predictions import Predictions
 import pprint
 import numpy as np
 
+
 class TestPredictions(TestCase):
 
     def setUp(self):
-        self.predictions = Predictions()
         self.sliding_window_duration = ImageConfig.sliding_window_duration
+        self.predictions = Predictions(self.sliding_window_duration)
 
         self.non_overlap_predictions = [{"left": 0.2,
                                          "right": 0.4,
@@ -168,7 +169,7 @@ class TestPredictions(TestCase):
         self.predictions.append_predictions(self.non_overlap_predictions, 0)
         metrics = self.predictions.get_prediction_metrics()
         self.assertIsNotNone(metrics)
-        self.assertIn("prediction",metrics)
+        self.assertIn("prediction", metrics)
         prediction_metrics = metrics["prediction"]
         self.assertIn("event_count", prediction_metrics)
         self.assertIn("mean_duration", prediction_metrics)
@@ -197,11 +198,10 @@ class TestPredictions(TestCase):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(metrics)
 
-
     def test_plot_roc(self):
         file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
         print(os.path.isfile(file))
-        with open("shhs1-200002-predictions.npy","rb") as arr:
+        with open("shhs1-200002-predictions.npy", "rb") as arr:
             predictions = np.load(arr)
             self.predictions.predictions = predictions
             self.predictions.last_predicted_index = len(predictions)
@@ -211,3 +211,18 @@ class TestPredictions(TestCase):
             print(np.unique(self.predictions.predictions))
             print(np.unique(self.predictions.ground_truth))
             print(self.predictions.ground_truth[:1000])
+
+
+    def test_get_predictions_and_ground_truth(self):
+        file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
+        self.predictions.append_predictions(self.overlap_predictions, 0)
+        self.predictions.append_predictions(self.non_overlap_predictions, 2700)
+
+        self.predictions.read_xml_annotations(file)
+        pred, ground_truth = self.predictions.get_predictions_and_ground_truth()
+        print(max(pred))
+        print(max(ground_truth))
+        print(np.unique(pred))
+        #TODO Write real tests
+
+
