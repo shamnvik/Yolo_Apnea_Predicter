@@ -3,7 +3,6 @@ from unittest import TestCase
 import numpy as np
 
 import yoloapnea.yolo_signal_detector as Yolo
-from yoloapnea.config import ImageConfig, YoloConfig
 from yoloapnea.signalplotter import SignalPlotter
 from pathlib import Path
 import os
@@ -14,12 +13,16 @@ class TestYoloSignalDetector(TestCase):
         test_signal = np.load("shhs1-200753-signal.npz")
         self.abdo_signal = test_signal["abdo_res"]
 
-        self.prediction_duration = ImageConfig.sliding_window_duration
-        self.prediction_overlap = ImageConfig.sliding_window_overlap
+        self.prediction_duration = 900
+        self.prediction_overlap = 450
+
+        size = 416
+        conf_thresh = 0.0
+        nms_thresh = 0.5
 
         self.weights_path = str(Path(os.getcwd(),"yolo-obj_last.weights"))
         self.config_path = str(Path(os.getcwd(),"yolo-obj.cfg"))
-        self.yolo = Yolo.YoloSignalDetector(self.weights_path, YoloConfig.size,YoloConfig.iou,YoloConfig.score,self.config_path)
+        self.yolo = Yolo.YoloSignalDetector(self.weights_path, size,conf_thresh,nms_thresh,self.config_path)
 
         self.signalplotter = SignalPlotter(self.prediction_overlap,self.prediction_overlap)
 

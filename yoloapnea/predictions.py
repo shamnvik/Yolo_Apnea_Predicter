@@ -1,27 +1,27 @@
-import pickle
 import matplotlib.pyplot as plt
 
 import numpy as np
 import pandas as pd
 from lxml import etree
 from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score, roc_curve, auc
-from sklearn import preprocessing
-from sklearn.preprocessing import binarize, label_binarize
+from sklearn.preprocessing import binarize
+
+from .evaluate import Evaluate
+from .apneas import ApneaType
 
 from yattag import Doc, indent
-
-from .config import ImageConfig
 
 
 class Predictions:
 
-    def __init__(self,sliding_window_duration):
+    def __init__(self, sliding_window_duration,apnea_types):
         self._predictions = np.zeros(12 * 60 * 60 * 10)
         self._ground_truth = None
         self.ground_truth_length = 0
         self.sliding_window_duration = sliding_window_duration
         self.last_predicted_index = 0
         self.last_ground_truth_index = 0
+        self.apnea_types = apnea_types
 
     @property
     def predictions(self):
@@ -29,8 +29,39 @@ class Predictions:
 
     @property
     def ground_truth(self):
-        return self._ground_truth[:self.ground_truth_length]
+        if self._ground_truth is None:
+            return None
+        else:
+            return self._ground_truth[:self.ground_truth_length]
 
+    @property
+    def annotation_file(self):
+        raise RuntimeError("This property has no getter")
+
+    @annotation_file.setter
+    def annotation_file(self, file):
+        if file.endswith("nsrr.xml"):
+            self.read_xml_annotations(file)
+        else:
+            raise NotImplementedError("Annotation filetype not supported")
+        
+    # @property
+    # def info(self):
+    #     df = self.get_predictions_as_df(self.predictions)
+    #     statistics = {}
+    #     statistics["apneas"] = len(df["start"])
+    #     statistics["recording_length_minutes"] = len(self.predictions) / (60 * 10)  # Hour * hz
+    #     statistics["calculated_ahi"] = (statistics["apneas"] / statistics["recording_length_minutes"]) * 60
+    #     return statistics
+
+    @property
+    def calculatedAhi(self):
+        df = self.get_predictions_as_df(self.predictions)
+        return len(df["start"]) / (len(self.predictions) / (60 * 10)) * 60
+
+    @property
+    def evaluate(self):
+        return Evaluate(self.predictions,self.ground_truth,self.apnea_types)
 
     def get_last_predictions(self):
         """
@@ -41,50 +72,14 @@ class Predictions:
         """
 
         if self.last_predicted_index >= self.sliding_window_duration:
-            start_index =self.last_predicted_index - self.sliding_window_duration
+            start_index = self.last_predicted_index - self.sliding_window_duration
             predictions = self.predictions[start_index: self.last_predicted_index]
         else:
             start_index = 0
             predictions = self.predictions[start_index:self.last_predicted_index]
 
+        return predictions, start_index
 
-        return predictions,start_index
-
-    def get_predictions_and_ground_truth(self):
-        print("getting predictions and ground truth")
-        print(len(self.predictions))
-        print(len(self.ground_truth))
-        return self.predictions, self.ground_truth
-
-    def get_predictions_as_np_array(self):
-        """
-        All stored predictions as numpy array
-        :return: numpy array of predictions. Values represent confidence of prediction. 0 < value < 1
-        """
-        return self.predictions
-
-    def get_predictions_as_df(self,predictions):
-
-        # with open('predictions_whole_recording.npy', 'wb') as f:
-        #     np.save(f,self.predictions)
-
-        # Taken from https://stackoverflow.com/questions/49491011/python-how-to-find-event-occurences-in-data
-        indicators = (predictions > 0.0).astype(int)
-        indicators_diff = np.concatenate([[0],indicators[1:] - indicators[:-1]])
-        diff_locations = np.where(indicators_diff != 0)[0]
-
-        assert len(diff_locations) % 2 == 0
-
-        starts = diff_locations[0::2]
-        ends = diff_locations[1::2]
-
-        df = pd.DataFrame({'start':starts,
-                           'end':ends,})
-
-        df['min_confidence'] = [predictions[start:end].min() for start,end in zip(df["start"],df["end"])]
-        df['max_confidence'] = [predictions[start:end].max() for start,end in zip(df["start"],df["end"])]
-        df['duration'] = df["end"] - df["start"]
-        return df
 
 
     def append_predictions(self, detections, start_index):
@@ -96,8 +91,6 @@ class Predictions:
                             the image it was detected on
         :param start_index: index in the signal of the leftmost pixel in the image yolo was run on.
         """
-
-
 
         for detection in detections:
             confidence = detection["confidence"]
@@ -164,73 +157,15 @@ class Predictions:
         :param prediction: Prediction dictionary with keys: start, end & confidence
         """
 
-        print("inserting new prediction")
-        print(self._predictions)
-
         np.maximum(self._predictions[prediction["start"]:prediction["end"]], prediction["confidence"],
                    out=self._predictions[prediction["start"]:prediction["end"]])
 
-
-    def get_array_statistics(self,array,length):
-        df = self.get_predictions_as_df(array)
-        statistics = {}
-        statistics["event_count"] = len(df["start"])
-        statistics["mean_duration"] = df["duration"].mean() if len(df["start"]) > 0 else 0
-
-        statistics["recording_length_minutes"] = length/(60 * 10) # Hour * hz
-        print(len(array))
-
-        if statistics["recording_length_minutes"] > 0:
-            statistics["calculated_ahi"] = (statistics["event_count"] / statistics["recording_length_minutes"])* 60
-        return statistics
-
-    def get_evaluation_metrics(self):
-        annotation_metrics = {}
-
-        metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
-        predictions = self.predictions[:metric_end]
-        ground_truth = self.ground_truth[:metric_end]
-        ground_truth_binary = np.ravel(binarize(ground_truth.reshape(1, -1), threshold=0))
-        predictions_binary = np.ravel(binarize(predictions.reshape(1, -1), threshold=0))
-
-        annotation_metrics["accuracy_score"] = accuracy_score(ground_truth_binary, predictions_binary)
-        annotation_metrics["f1_score"] = f1_score(ground_truth_binary, predictions_binary)
-        annotation_metrics["precision_score"] = precision_score(ground_truth_binary, predictions_binary)
-        annotation_metrics["recall_score"] = recall_score(ground_truth_binary, predictions_binary)
-
-        fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
-        annotation_metrics["roc"] = {"fpr" : fpr, "tpr": tpr, "treshold":threshold}
-
-        return annotation_metrics
-
-    def plot_roc(self):
-
-        print(self.ground_truth_length)
-        print(self.last_predicted_index)
-
-        metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
-        predictions = self.predictions[:metric_end]
-        ground_truth = self.ground_truth[:metric_end]
-
-        ground_truth[ground_truth>1] = 0 # Filters Hypopnea|Hypopnea out as the model has only been training on OSA
-
-        fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
-        roc_auc = auc(fpr, tpr)
-        plt.title('Receiver Operating Characteristic')
-        plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-        plt.legend(loc='lower right')
-        plt.plot([0, 1], [0, 1], 'r--')
-        plt.xlim([0, 1])
-        plt.ylim([0, 1])
-        plt.ylabel('True Positive Rate')
-        plt.xlabel('False Positive Rate')
-        plt.show()
 
     def get_prediction_metrics(self):
         print("Getting prediction metrics")
         metrics = {}
 
-        metrics["prediction"] = self.get_array_statistics(self.predictions,self.last_predicted_index)
+        metrics["prediction"] = self.get_array_statistics(self.predictions, self.last_predicted_index)
 
         if self.ground_truth is not None:
             metrics["ground_truth"] = self.get_array_statistics(self.ground_truth, self.ground_truth_length)
@@ -238,12 +173,12 @@ class Predictions:
 
         return metrics
 
-    def read_xml_annotations(self,file):
+    def read_xml_annotations(self, file):
         print("reading XML annotations")
         self._ground_truth = np.zeros(12 * 60 * 60 * 10)
 
         with open(file) as f:
-            start,end,apnea_type = 0,0,0
+            start, end, apnea_type = 0, 0, 0
             tree = etree.parse(f)
             tree = tree.getroot()
             for scored_event in tree.find("ScoredEvents"):
@@ -251,17 +186,17 @@ class Predictions:
                 if concept.text == "Obstructive apnea|Obstructive Apnea":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    apnea_type = 1
+                    apnea_type = ApneaType.ObstructiveApnea.value
 
                 elif concept.text == "Hypopnea|Hypopnea":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    apnea_type = 2
+                    apnea_type = ApneaType.Hypopnea.value
 
                 self._ground_truth[start:end] = apnea_type
 
                 if concept.text == "Recording Start Time":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    self.ground_truth_length = end * 10 # "Duration" is in seconds, converting to deciseconds
+                    self.ground_truth_length = end * 10  # "Duration" is in seconds, converting to deciseconds
 

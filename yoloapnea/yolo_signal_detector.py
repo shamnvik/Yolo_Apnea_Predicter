@@ -1,23 +1,18 @@
-import cv2
-import matplotlib.pyplot as plt
-import numpy as np
-from PIL import Image
-from pandas.core.common import flatten
-from .config import YoloConfig
 import os
 
-CONF_THRESH, NMS_THRESH = 0.0, 0.5
+import cv2
+import numpy as np
 
 
 class YoloSignalDetector:
 
     loaded_model = None
 
-    def __init__(self, weights_path : str, input_size, iou, score, config_path : str):
+    def __init__(self, weights_path : str, input_size, conf_thresh, nms_thresh, config_path : str):
         self.weights = weights_path
         self.input_size = input_size
-        self.iou = iou
-        self.score = score
+        self.conf_thresh = conf_thresh
+        self.nms_thresh = nms_thresh
 
         if YoloSignalDetector.loaded_model is None:
 
@@ -64,7 +59,7 @@ class YoloSignalDetector:
 
                 # filter out weak predictions by ensuring the detected
                 # probability is greater than the minimum probability
-                if confidence > CONF_THRESH:
+                if confidence > self.conf_thresh:
                     # scale the bounding box coordinates back relative to the
                     # size of the image, keeping in mind that YOLO actually
                     # returns the center (x, y)-coordinates of the bounding
@@ -85,8 +80,8 @@ class YoloSignalDetector:
 
         # apply non-maxima suppression to suppress weak, overlapping bounding
         # boxes
-        idxs = cv2.dnn.NMSBoxes(boxes, confidences, CONF_THRESH,
-                                NMS_THRESH)
+        idxs = cv2.dnn.NMSBoxes(boxes, confidences, self.conf_thresh,
+                                self.nms_thresh)
 
 
         if len(idxs) > 0:

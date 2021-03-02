@@ -4,16 +4,15 @@ import numpy as np
 import progressbar
 import cv2
 
-from .config import ImageConfig,YoloConfig
 from .predictions import Predictions
 from .yolo_signal_detector import YoloSignalDetector
 from .signalplotter import SignalPlotter
 
 class ApneaDetector:
 
-    def __init__(self,weights_path,config_path):
-        self.sliding_window_duration = ImageConfig.sliding_window_duration
-        self.sliding_window_overlap = ImageConfig.sliding_window_overlap
+    def __init__(self,weights_path,config_path,apnea_types,sliding_window_duration,sliding_window_overlap,yolosize,conf_thresh,nms_thresh):
+        self.sliding_window_duration = sliding_window_duration
+        self.sliding_window_overlap = sliding_window_overlap
 
         self.signal_index = 0
         self.signal_length = 0
@@ -22,10 +21,14 @@ class ApneaDetector:
         self.weights = weights_path
         self.config = config_path
 
-        self.predictions = Predictions()
+        self.predictions = Predictions(self.sliding_window_duration,apnea_types)
         self.signalPlotter = SignalPlotter(self.sliding_window_duration,self.sliding_window_overlap)
 
-        self.yolo = YoloSignalDetector(self.weights,YoloConfig.size,YoloConfig.iou,YoloConfig.score,self.config)
+        size = yolosize
+        conf_thresh = conf_thresh
+        nms_thresh = nms_thresh
+
+        self.yolo = YoloSignalDetector(self.weights,size,conf_thresh,nms_thresh,self.config)
 
     def append_signal(self, signal):
         """
