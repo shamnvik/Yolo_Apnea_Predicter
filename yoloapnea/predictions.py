@@ -186,7 +186,7 @@ class Predictions:
                 if concept.text == "Obstructive apnea|Obstructive Apnea":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    apnea_type = ApneaType.ObstructiveApnea.value
+                    apnea_type = ApneaType.Obstructive.value
 
                 elif concept.text == "Hypopnea|Hypopnea":
                     start = int(float(scored_event.find("Start").text))
