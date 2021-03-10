@@ -5,10 +5,10 @@ import cv2
 
 class SignalPlotter:
 
-    def __init__(self,image_duration,sliding_window_overlap):
+    def __init__(self,image_duration,sliding_window_overlap=None):
         print("init signal plotter")
-        self.image_duration = image_duration #TODO placeholder,add to constructor
-        self.sliding_window_overlap = sliding_window_overlap #TODO placeholder, add to constructor
+        self.image_duration = image_duration
+        self.sliding_window_overlap = sliding_window_overlap
 
     def plot_signal(self,signal):
 
@@ -18,6 +18,9 @@ class SignalPlotter:
 
         if remaining_signal < self.image_duration:
             raise Exception("Signal length is too short")
+
+        if self.sliding_window_overlap is None:
+            raise Exception("Add sliding window overlap if plotting multiple images")
 
         while remaining_signal > 0:
 
