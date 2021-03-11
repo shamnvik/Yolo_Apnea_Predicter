@@ -16,7 +16,7 @@ class TestApneaDetector(TestCase):
         self.sliding_window_duration = 900
         self.sliding_window_overlap = 450
 
-        self.apnea_types = [ApneaType.ObstructiveApnea]
+        self.apnea_types = ["Obstructive"]
 
         self.size = 416
         self.conf_thresh = 0.0

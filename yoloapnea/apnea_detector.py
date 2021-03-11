@@ -7,10 +7,11 @@ import cv2
 from .predictions import Predictions
 from .yolo_signal_detector import YoloSignalDetector
 from .signalplotter import SignalPlotter
+from .apneas import ApneaType
 
 class ApneaDetector:
 
-    def __init__(self,weights_path,config_path,apnea_types,sliding_window_duration,sliding_window_overlap,yolosize,conf_thresh,nms_thresh):
+    def __init__(self,weights_path,config_path,apnea_types_list,sliding_window_duration,sliding_window_overlap,yolosize,conf_thresh,nms_thresh):
         self.sliding_window_duration = sliding_window_duration
         self.sliding_window_overlap = sliding_window_overlap
 
@@ -20,6 +21,8 @@ class ApneaDetector:
 
         self.weights = weights_path
         self.config = config_path
+
+        apnea_types = [ApneaType[a] for a in apnea_types_list]
 
         self.predictions = Predictions(self.sliding_window_duration,apnea_types)
         self.signalPlotter = SignalPlotter(self.sliding_window_duration,self.sliding_window_overlap)
