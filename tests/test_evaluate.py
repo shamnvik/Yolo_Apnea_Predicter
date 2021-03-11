@@ -8,7 +8,7 @@ from sklearn.metrics import f1_score
 class TestEvaluate(TestCase):
     
     def setUp(self):
-        apnea_types = [ApneaType.ObstructiveApnea]
+        apnea_types = [ApneaType.Obstructive]
         self.pred  = np.array([0,1,0,0,0,1,1,0])
         self.truth = np.array([0,1,0,0,0,1,0,0])
         self.evaluate = evaluate.Evaluate(self.pred,self.truth,apnea_types)

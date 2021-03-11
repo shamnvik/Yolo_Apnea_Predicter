@@ -186,6 +186,7 @@ class TestPredictions(TestCase):
     def test_read_xml_annotations(self):
         file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
         self.predictions.read_xml_annotations(file)
+        self.predictions.last_predicted_index = 10000
         self.assertTrue(self.predictions.ground_truth.max() != 0)
         self.assertTrue(self.predictions.ground_truth[8717] == 1)
         self.assertTrue(self.predictions.ground_truth[8716] == 1)
