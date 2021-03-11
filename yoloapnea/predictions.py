@@ -17,7 +17,7 @@ class Predictions:
     def __init__(self, sliding_window_duration,apnea_types):
         self._predictions = np.zeros(12 * 60 * 60 * 10)
         self._ground_truth = None
-        self.ground_truth_length = 0
+        self._ground_truth_length = 0
         self.sliding_window_duration = sliding_window_duration
         self.last_predicted_index = 0
         self.last_ground_truth_index = 0
@@ -27,6 +27,7 @@ class Predictions:
     def predictions(self):
         return self._predictions[:self.last_predicted_index]
 
+
     @property
     def ground_truth(self):
         if self._ground_truth is None:
@@ -35,13 +36,24 @@ class Predictions:
             return self._ground_truth[:self.ground_truth_length]
 
     @property
+    def ground_truth_length(self):
+        return self.last_predicted_index #Ground truth will never be longer than the signal data
+
+
+    @property
     def annotation_file(self):
         raise RuntimeError("This property has no getter")
 
     @annotation_file.setter
     def annotation_file(self, file):
-        if file.endswith("nsrr.xml"):
+        print(type(file))
+
+        if type(file) is pd.core.frame.DataFrame:
+            self.set_dataFrame_annotations(file)
+
+        elif file.endswith("nsrr.xml"):
             self.read_xml_annotations(file)
+
         else:
             raise NotImplementedError("Annotation filetype not supported")
         
@@ -79,7 +91,6 @@ class Predictions:
             predictions = self.predictions[start_index:self.last_predicted_index]
 
         return predictions, start_index
-
 
 
     def append_predictions(self, detections, start_index):
@@ -198,5 +209,19 @@ class Predictions:
                 if concept.text == "Recording Start Time":
                     start = int(float(scored_event.find("Start").text))
                     end = start + int(float(scored_event.find("Duration").text))
-                    self.ground_truth_length = end * 10  # "Duration" is in seconds, converting to deciseconds
+                    #self._ground_truth_length = end * 10  # "Duration" is in seconds, converting to deciseconds
+
+    def set_dataFrame_annotations(self,df):
+        print("running fun")
+        print(df)
+        self._ground_truth = np.zeros(12 * 60 * 60 * 10)
+        for row in df.itertuples():
+            type = ApneaType[row.type].value
+            start = int(row.start*10)
+            end = int(row.end*10)
+            self._ground_truth[start:end] = type
+
+
+
+
 

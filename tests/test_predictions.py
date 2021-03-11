@@ -14,7 +14,7 @@ class TestPredictions(TestCase):
     def setUp(self):
         self.sliding_window_duration = 900
 
-        apneaTypes = [ApneaType.ObstructiveApnea]
+        apneaTypes = [ApneaType.Obstructive]
         self.predictions = Predictions(self.sliding_window_duration,apneaTypes)
 
         self.non_overlap_predictions = [{"left": 0.2,
@@ -192,6 +192,16 @@ class TestPredictions(TestCase):
         self.assertTrue(self.predictions.ground_truth[8715] == 0)
         self.assertTrue(self.predictions.ground_truth[3039] == 2)
         self.assertTrue(self.predictions.ground_truth[3036] == 0)
+
+    def test_set_annotation_dataframe(self):
+        file = f"{os.getcwd()}{os.sep}200020.npz"
+        with np.load(file, allow_pickle=True) as p:
+            data = p["data"].item()
+            annotation_df = data["shhs1"]["annotation"]
+            self.predictions.annotation_file = annotation_df
+            self.assertEqual(self.predictions.ground_truth_length,self.predictions.last_predicted_index)
+            self.predictions.append_predictions(self.non_overlap_predictions, 0)
+            self.assertEqual(self.sliding_window_duration, self.predictions.last_predicted_index)
 
     # def test_get_prediction_metrics_compared_to_annotations(self):
     #     file = f"{os.getcwd()}{os.sep}shhs1-200002-nsrr.xml"
