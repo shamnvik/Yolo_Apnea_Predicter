@@ -90,19 +90,23 @@ class Evaluate:
         return len(df["start"]) / (len(self.ground_truth) / (60 * 10)) * 60
 
     def get_predictions_as_df(self, predictions):
-        # with open('predictions_whole_recording.npy', 'wb') as f:
-        #     np.save(f,self.predictions)
 
-        # Taken from https://stackoverflow.com/questions/49491011/python-how-to-find-event-occurences-in-data
-        indicators = (predictions > 0.0).astype(int)
-        indicators_diff = np.concatenate([[0], indicators[1:] - indicators[:-1]])
-        diff_locations = np.where(indicators_diff != 0)[0]
+        indicators = (predictions > self.threshold).astype(int)
 
-        print(diff_locations)
-        assert len(diff_locations) % 2 == 0
+        in_event = False
+        starts = []
+        ends = []
 
-        starts = diff_locations[0::2]
-        ends = diff_locations[1::2]
+        for i,val in enumerate(indicators):
+            if val == True and not in_event:
+                starts.append(i)
+                in_event = True
+            elif val == False and in_event:
+                ends.append(i)
+                in_event = False
+
+        if in_event:
+            ends.append(len(indicators))
 
         df = pd.DataFrame({'start': starts,
                            'end': ends, })
