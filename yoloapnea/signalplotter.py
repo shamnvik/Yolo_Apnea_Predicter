@@ -6,7 +6,6 @@ import cv2
 class SignalPlotter:
 
     def __init__(self,image_duration,sliding_window_overlap=None):
-        print("init signal plotter")
         self.image_duration = image_duration
         self.sliding_window_overlap = sliding_window_overlap
 
@@ -14,7 +13,6 @@ class SignalPlotter:
 
         remaining_signal = len(signal)
         start_index = 0
-        print(len(signal))
 
         if remaining_signal < self.image_duration:
             raise Exception("Signal length is too short")
@@ -41,8 +39,6 @@ class SignalPlotter:
 
 
     def signal_to_image(self,signal,start=0,end=None):
-        print("plotting of len")
-        print(len(signal))
         if end is None:
             end = self.image_duration
         fig, ax = plt.subplots(figsize=(10, 10))

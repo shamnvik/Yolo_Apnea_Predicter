@@ -46,7 +46,6 @@ class Predictions:
 
     @annotation_file.setter
     def annotation_file(self, file):
-        print(type(file))
 
         if type(file) is pd.core.frame.DataFrame:
             self.set_dataFrame_annotations(file)
@@ -173,7 +172,6 @@ class Predictions:
 
 
     def get_prediction_metrics(self):
-        print("Getting prediction metrics")
         metrics = {}
 
         metrics["prediction"] = self.get_array_statistics(self.predictions, self.last_predicted_index)
@@ -185,7 +183,6 @@ class Predictions:
         return metrics
 
     def read_xml_annotations(self, file):
-        print("reading XML annotations")
         self._ground_truth = np.zeros(12 * 60 * 60 * 10)
 
         with open(file) as f:
@@ -212,8 +209,6 @@ class Predictions:
                     #self._ground_truth_length = end * 10  # "Duration" is in seconds, converting to deciseconds
 
     def set_dataFrame_annotations(self,df):
-        print("running fun")
-        print(df)
         self._ground_truth = np.zeros(12 * 60 * 60 * 10)
         for row in df.itertuples():
             type = ApneaType[row.type].value
