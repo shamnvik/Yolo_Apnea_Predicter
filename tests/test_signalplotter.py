@@ -101,3 +101,23 @@ class TestSignalPlotter(TestCase):
 
 
         self.assertEqual(3, image_count)
+
+
+    def test_plot_signal_long_data(self):
+
+        import time
+        import statistics
+
+        part_signal = self.abdo_signal[:10000]
+        images = self.plotter.plot_signal(part_signal)
+
+        times = []
+        start = time.time()
+        for _,img in images:
+            end = time.time()
+            duration = end-start
+            print(f"Time: {duration:.2}")
+            times.append(duration)
+            start = time.time()
+
+        print(f"Mean time is {statistics.mean(times):.4}")
