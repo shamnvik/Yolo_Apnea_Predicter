@@ -26,7 +26,6 @@ class YoloSignalDetector:
             print("model loaded")
 
     def detect(self, img, show_bbox=False):
-        print("running detect")
         loaded_model = YoloSignalDetector.loaded_model
         layers = loaded_model.getLayerNames()
         output_layers = [layers[i[0] - 1] for i in loaded_model.getUnconnectedOutLayers()]

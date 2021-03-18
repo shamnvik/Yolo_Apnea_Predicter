@@ -15,7 +15,7 @@ class TestPredictions(TestCase):
         self.sliding_window_duration = 900
 
         apneaTypes = [ApneaType.Obstructive]
-        self.predictions = Predictions(self.sliding_window_duration,apneaTypes)
+        self.predictions = Predictions(self.sliding_window_duration,apneaTypes,0.25)
 
         self.non_overlap_predictions = [{"left": 0.2,
                                          "right": 0.4,

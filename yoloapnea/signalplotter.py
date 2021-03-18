@@ -10,7 +10,6 @@ class SignalPlotter:
         self.sliding_window_overlap = sliding_window_overlap
 
     def plot_signal(self,signal):
-
         fig, ax = plt.subplots(figsize=(10, 10))
         ax.plot(signal)
         ax.set_ylim(-1, 1)
@@ -40,7 +39,7 @@ class SignalPlotter:
             elif remaining_signal > self.image_duration:
                 yield start_index,self.plot_part(fig,ax,len(signal) - remaining_signal,len(signal) - remaining_signal + self.image_duration)
 
-                # yield start_index,self.signal_to_image(signal[start_index:start_index + self.image_duration])
+                #yield start_index,self.signal_to_image(signal[start_index:start_index + self.image_duration])
                 start_index = start_index + self.sliding_window_overlap
                 remaining_signal -= self.sliding_window_overlap
 

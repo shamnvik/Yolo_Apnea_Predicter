@@ -24,7 +24,7 @@ class ApneaDetector:
 
         apnea_types = [ApneaType[a] for a in apnea_types_list]
 
-        self.predictions = Predictions(self.sliding_window_duration,apnea_types)
+        self.predictions = Predictions(self.sliding_window_duration,apnea_types,0.25)
         self.signalPlotter = SignalPlotter(self.sliding_window_duration,self.sliding_window_overlap)
 
         size = yolosize

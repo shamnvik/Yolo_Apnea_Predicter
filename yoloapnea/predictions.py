@@ -14,7 +14,7 @@ from yattag import Doc, indent
 
 class Predictions:
 
-    def __init__(self, sliding_window_duration,apnea_types):
+    def __init__(self, sliding_window_duration,apnea_types,threshold):
         self._predictions = np.zeros(12 * 60 * 60 * 10)
         self._ground_truth = None
         self._ground_truth_length = 0
@@ -22,6 +22,7 @@ class Predictions:
         self.last_predicted_index = 0
         self.last_ground_truth_index = 0
         self.apnea_types = apnea_types
+        self.threshold = threshold
 
     @property
     def predictions(self):
@@ -72,7 +73,7 @@ class Predictions:
 
     @property
     def evaluate(self):
-        return Evaluate(self.predictions,self.ground_truth,self.apnea_types)
+        return Evaluate(self.predictions,self.ground_truth,self.apnea_types,self.threshold)
 
     def get_last_predictions(self):
         """

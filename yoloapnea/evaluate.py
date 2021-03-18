@@ -13,7 +13,7 @@ class Evaluate:
         self.predictions = predictions
         self.predictionsBool = predictions>threshold
         self.ground_truth = np.isin(ground_truth,[apnea.value for apnea in apnea_types])
-        self.threshold = 0.25
+        self.threshold = threshold
 
     @property
     def scores(self):
