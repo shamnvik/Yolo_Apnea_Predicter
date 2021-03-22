@@ -6,12 +6,12 @@ import cv2
 
 from .predictions import Predictions
 from .yolo_signal_detector import YoloSignalDetector
-from .signalplotter import SignalPlotter
+from yoloapnea.Plotters.pyPlotter import PyPlotter as SignalPlotter
 from .apneas import ApneaType
 
 class ApneaDetector:
 
-    def __init__(self,weights_path,config_path,apnea_types_list,sliding_window_duration,sliding_window_overlap,yolosize,conf_thresh,nms_thresh):
+    def __init__(self,weights_path,config_path,apnea_types_list,sliding_window_duration,sliding_window_overlap,yolosize,conf_thresh,nms_thresh,plotter):
         self.sliding_window_duration = sliding_window_duration
         self.sliding_window_overlap = sliding_window_overlap
 
@@ -25,7 +25,11 @@ class ApneaDetector:
         apnea_types = [ApneaType[a] for a in apnea_types_list]
 
         self.predictions = Predictions(self.sliding_window_duration,apnea_types,0.25)
-        self.signalPlotter = SignalPlotter(self.sliding_window_duration,self.sliding_window_overlap)
+        if plotter == "PyPlot":
+            from yoloapnea.Plotters.pyPlotter import PyPlotter as Plotter
+            self.signalPlotter = Plotter(self.sliding_window_duration,self.sliding_window_overlap)
+        else:
+            raise NotImplementedError("Plotter type not implemented")
 
         size = yolosize
         conf_thresh = conf_thresh

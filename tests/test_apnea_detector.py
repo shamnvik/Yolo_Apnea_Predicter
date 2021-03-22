@@ -22,9 +22,11 @@ class TestApneaDetector(TestCase):
         self.conf_thresh = 0.0
         self.nms_thresh = 0.5
 
+        self.plotter = "PyPlot"
+
         self.weights_path = str(Path(os.getcwd(),"yolo-obj_last.weights"))
         self.config_path = str(Path(os.getcwd(),"yolo-obj.cfg"))
-        self.apnea_predictor = ApneaDetector(self.weights_path,self.config_path,self.apnea_types,self.sliding_window_duration,self.sliding_window_overlap,self.size,self.conf_thresh,self.nms_thresh)
+        self.apnea_predictor = ApneaDetector(self.weights_path,self.config_path,self.apnea_types,self.sliding_window_duration,self.sliding_window_overlap,self.size,self.conf_thresh,self.nms_thresh,self.plotter)
 
 
     def test_append_signal_too_little_data(self):
@@ -47,6 +49,14 @@ class TestApneaDetector(TestCase):
         apnea_predictor.append_signal(self.abdo_signal[0:700])
         predictions = apnea_predictor.predictions.predictions
 
+    def test_append_long_signal(self):
+        apnea_predictor = self.apnea_predictor
+        apnea_predictor.append_signal(self.abdo_signal[0:10000])
+        true_signal = self.abdo_signal[0:10000]
+        appended_signal = apnea_predictor.signal
+        np.testing.assert_almost_equal(true_signal, appended_signal, decimal=5)
+        self.assertEqual(10000, apnea_predictor.signal_length)
+
     def test_append_signal(self):
         apnea_predictor = self.apnea_predictor
         apnea_predictor.append_signal(self.abdo_signal[0:900])
@@ -68,7 +78,7 @@ class TestApneaDetector(TestCase):
 
     def test_append_signal_multiple_detectors(self):
         apnea_predictor_1 = self.apnea_predictor
-        apnea_predictor_2 = ApneaDetector(self.weights_path,self.config_path,self.apnea_types,self.sliding_window_duration,self.sliding_window_overlap,self.size,self.conf_thresh,self.nms_thresh)
+        apnea_predictor_2 = ApneaDetector(self.weights_path,self.config_path,self.apnea_types,self.sliding_window_duration,self.sliding_window_overlap,self.size,self.conf_thresh,self.nms_thresh,self.plotter)
         apnea_predictor_1.append_signal(self.abdo_signal[0:900])
         apnea_predictor_1.append_signal(self.abdo_signal[900:1500])
 

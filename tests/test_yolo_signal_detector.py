@@ -3,7 +3,7 @@ from unittest import TestCase
 import numpy as np
 
 import yoloapnea.yolo_signal_detector as Yolo
-from yoloapnea.signalplotter import SignalPlotter
+from yoloapnea.Plotters.pyPlotter import PyPlotter as SignalPlotter
 from pathlib import Path
 import os
 

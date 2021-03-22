@@ -23,6 +23,8 @@ class YoloSignalDetector:
             print(os.path.exists(config_path))
             print(type(weights_path))
             YoloSignalDetector.loaded_model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
+            YoloSignalDetector.loaded_model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+            YoloSignalDetector.loaded_model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
             print("model loaded")
 
     def detect(self, img, show_bbox=False):
@@ -39,6 +41,7 @@ class YoloSignalDetector:
         blob = cv2.dnn.blobFromImage(img, 0.00392, (416, 416), swapRB=True, crop=False)
 
         loaded_model.setInput(blob)
+
         layer_outputs = loaded_model.forward(output_layers)
         boxes = []
         confidences = []
