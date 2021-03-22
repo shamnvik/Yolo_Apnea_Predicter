@@ -26,7 +26,7 @@ class ApneaDetector:
 
         self.predictions = Predictions(self.sliding_window_duration,apnea_types,0.25)
         if plotter == "PyPlot":
-            from yoloapnea.Plotters.pyPlotter import PyPlotter as Plotter
+            from .Plotters.pyPlotter import PyPlotter as Plotter
             self.signalPlotter = Plotter(self.sliding_window_duration,self.sliding_window_overlap)
         else:
             raise NotImplementedError("Plotter type not implemented")
