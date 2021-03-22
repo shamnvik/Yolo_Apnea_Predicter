@@ -6,7 +6,7 @@ import cv2
 
 from .predictions import Predictions
 from .yolo_signal_detector import YoloSignalDetector
-from yoloapnea.Plotters.pyPlotter import PyPlotter as SignalPlotter
+from .Plotters.pyPlotter import PyPlotter as SignalPlotter
 from .apneas import ApneaType
 
 class ApneaDetector:

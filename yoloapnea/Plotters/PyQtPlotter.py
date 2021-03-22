@@ -1,12 +1,7 @@
-import cv2
 import pyqtgraph as pg
-import pyqtgraph.exporters
-import io
 import numpy as np
-from PyQt5 import QtGui
 
-
-from yoloapnea.signalplotter import SignalPlotter
+from yoloapnea.Plotters.signalplotter import SignalPlotter
 
 image_duration = 900
 overlap = 450

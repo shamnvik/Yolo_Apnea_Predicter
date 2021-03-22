@@ -16,12 +16,8 @@ class YoloSignalDetector:
 
         if YoloSignalDetector.loaded_model is None:
 
-            print("loading model")
-
+            print("loading model...")
             print(f"Config path:{config_path} weights path: {weights_path}")
-            print(os.path.exists(weights_path))
-            print(os.path.exists(config_path))
-            print(type(weights_path))
             YoloSignalDetector.loaded_model = cv2.dnn.readNetFromDarknet(config_path, weights_path)
             YoloSignalDetector.loaded_model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
             YoloSignalDetector.loaded_model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)

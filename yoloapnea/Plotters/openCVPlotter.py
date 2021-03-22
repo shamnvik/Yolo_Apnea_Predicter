@@ -1,9 +1,7 @@
-import cv2
-import io
 import numpy as np
 import cv2
 
-from yoloapnea.signalplotter import SignalPlotter
+from .signalplotter import SignalPlotter
 
 image_duration = 900
 overlap = 450
