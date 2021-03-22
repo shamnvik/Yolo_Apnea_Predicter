@@ -99,7 +99,7 @@ class YoloSignalDetector:
                                     "left": left_start,
                                     "right": right_end}
                 predictions.append(pred)
-                print(pred)
+                #print(pred)
         return predictions
 
         # image = self.signal_to_image(signal)
