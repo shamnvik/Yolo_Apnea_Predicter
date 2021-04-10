@@ -116,7 +116,6 @@ class TestSignalPlotter(TestCase):
         for _,img in images:
             end = time.time()
             duration = end-start
-            print(f"Time: {duration:.2}")
             times.append(duration)
             start = time.time()
 

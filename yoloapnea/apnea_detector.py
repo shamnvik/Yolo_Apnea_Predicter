@@ -17,7 +17,7 @@ class ApneaDetector:
 
         self.signal_index = 0
         self.signal_length = 0
-        self.signal = np.zeros(12 * 60 * 60 * 10)
+        self.signal = np.zeros(15 * 60 * 60 * 10)
 
         self.weights = weights_path
         self.config = config_path

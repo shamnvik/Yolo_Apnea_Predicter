@@ -54,7 +54,7 @@ class TestPyPlotter(TestCase):
         import time
         import statistics
 
-        part_signal = self.abdo_signal[:100000]
+        part_signal = self.abdo_signal[:50000]
         images = self.plotter.plot_signal(part_signal)
 
         times = []
@@ -63,7 +63,6 @@ class TestPyPlotter(TestCase):
 
             end = time.time()
             duration = end-start
-            print(f"Time: {duration:.2}")
             times.append(duration)
             start = time.time()
 
