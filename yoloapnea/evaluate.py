@@ -150,23 +150,25 @@ class Evaluate:
 
     @property
     def fn_apneas(self):
-
+        in_apnea = False
         predicted_this_apnea = False
         fn = 0
-
         for gt, pd in zip(self.ground_truth, self.predictionsBool):
-
-            if gt and not predicted_this_apnea:
+            if gt and in_apnea:
                 if pd:
                     predicted_this_apnea = True
-            elif gt and predicted_this_apnea:
+            elif gt and not in_apnea:
+                in_apnea = True
+                if pd:
+                    predicted_this_apnea = True
+            elif not gt and in_apnea:
+                in_apnea = False
+                if not predicted_this_apnea:
+                    fn +=1
+            elif not gt and not in_apnea:
                 continue
-            elif not gt and predicted_this_apnea:
-                predicted_this_apnea = False
-            elif not gt and not predicted_this_apnea:
-                fn += 1
 
-        if gt and not predicted_this_apnea:
+        if in_apnea and not predicted_this_apnea:
             fn += 1
 
         return fn
