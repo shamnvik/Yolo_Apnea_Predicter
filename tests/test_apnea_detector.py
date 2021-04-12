@@ -101,7 +101,6 @@ class TestApneaDetector(TestCase):
         df = apnea_predictor.predictions.evaluate.get_predictions_as_df(apnea_predictor.predictions.predictions)
         print(df)
         ahi = apnea_predictor.predictions.evaluate.predictionAHI
-        print("here")
         print(ahi)
 
     def test_save_prediction_array(self):

@@ -25,7 +25,9 @@ class Evaluate:
             "accuracy": self.accuracy,
             "ahi":self.ahi,
             "precision":self.precision,
-            "recall":self.recall
+            "recall":self.recall,
+            "tp_apneas":self.tp_apneas,
+            "fp_apneas":self.fp_apneas
         }
 
     @property
@@ -89,6 +91,60 @@ class Evaluate:
         df = self.get_predictions_as_df(self.ground_truth)
         return len(df["start"]) / (len(self.ground_truth) / (60 * 10)) * 60
 
+    @property
+    def tp_apneas(self):
+        in_apnea = False
+        predicted_current_apnea = False
+        tp = 0
+        for gt,pd in zip(self.ground_truth,self.predictionsBool):
+            if not in_apnea and gt == False:
+                continue
+            elif in_apnea and gt == False:
+                in_apnea = False
+                if predicted_current_apnea:
+                    tp += 1
+                predicted_current_apnea = False
+
+            elif in_apnea and gt == True:
+                if pd:
+                    predicted_current_apnea = True
+            elif not in_apnea and gt == True:
+                in_apnea = True
+
+                if pd:
+                    predicted_current_apnea = True
+        return tp
+
+
+    @property
+    def fp_apneas(self):
+        fp = 0
+        in_predicted_apnea = False
+        ground_truth_in_predicted = False
+        for gt,pd in zip(self.ground_truth,self.predictionsBool):
+            if not in_predicted_apnea and pd == False:
+                continue
+            elif not in_predicted_apnea and pd == True:
+
+                in_predicted_apnea = True
+                if gt == True:
+                    ground_truth_in_predicted = True
+
+            elif in_predicted_apnea and pd == True:
+
+                if gt == True:
+                    ground_truth_in_predicted = True
+            elif in_predicted_apnea and pd == False:
+
+                if ground_truth_in_predicted:
+                    ground_truth_in_predicted = False
+                else:
+                    fp += 1
+                in_predicted_apnea = False
+        if not ground_truth_in_predicted and in_predicted_apnea:
+            fp +=1
+        return fp
+
     def get_predictions_as_df(self, predictions):
 
         indicators = (predictions > self.threshold).astype(int)
@@ -115,48 +171,3 @@ class Evaluate:
         df['max_confidence'] = [predictions[start:end].max() for start, end in zip(df["start"], df["end"])]
         df['duration'] = df["end"] - df["start"]
         return df
-
-
-###
-    #
-    # def get_evaluation_metrics(self):
-    #     annotation_metrics = {}
-    #
-    #     metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
-    #     predictions = self.predictions[:metric_end]
-    #     ground_truth = self.ground_truth[:metric_end]
-    #     ground_truth_binary = np.ravel(binarize(ground_truth.reshape(1, -1), threshold=0))
-    #     predictions_binary = np.ravel(binarize(predictions.reshape(1, -1), threshold=0))
-    #
-    #     annotation_metrics["accuracy_score"] = accuracy_score(ground_truth_binary, predictions_binary)
-    #     annotation_metrics["f1_score"] = f1_score(ground_truth_binary, predictions_binary)
-    #     annotation_metrics["precision_score"] = precision_score(ground_truth_binary, predictions_binary)
-    #     annotation_metrics["recall_score"] = recall_score(ground_truth_binary, predictions_binary)
-    #
-    #     fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
-    #     annotation_metrics["roc"] = {"fpr": fpr, "tpr": tpr, "treshold": threshold}
-    #
-    #     return annotation_metrics
-    #
-    # def plot_roc(self):
-    #
-    #     print(self.ground_truth_length)
-    #     print(self.last_predicted_index)
-    #
-    #     metric_end = int(float(max(self.ground_truth_length, self.last_predicted_index)))
-    #     predictions = self.predictions[:metric_end]
-    #     ground_truth = self.ground_truth[:metric_end]
-    #
-    #     ground_truth[ground_truth > 1] = 0  # Filters Hypopnea|Hypopnea out as the model has only been training on OSA
-    #
-    #     fpr, tpr, threshold = roc_curve(ground_truth.astype(bool), predictions)
-    #     roc_auc = auc(fpr, tpr)
-    #     plt.title('Receiver Operating Characteristic')
-    #     plt.plot(fpr, tpr, 'b', label='AUC = %0.2f' % roc_auc)
-    #     plt.legend(loc='lower right')
-    #     plt.plot([0, 1], [0, 1], 'r--')
-    #     plt.xlim([0, 1])
-    #     plt.ylim([0, 1])
-    #     plt.ylabel('True Positive Rate')
-    #     plt.xlabel('False Positive Rate')
-    #     plt.show()
