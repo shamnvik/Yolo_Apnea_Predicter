@@ -166,7 +166,7 @@ class Evaluate:
                 if not predicted_this_apnea:
                     fn +=1
             elif not gt and not in_apnea:
-                continue
+                predicted_this_apnea = False
 
         if in_apnea and not predicted_this_apnea:
             fn += 1
