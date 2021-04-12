@@ -27,7 +27,8 @@ class Evaluate:
             "precision":self.precision,
             "recall":self.recall,
             "tp_apneas":self.tp_apneas,
-            "fp_apneas":self.fp_apneas
+            "fp_apneas":self.fp_apneas,
+            "fn_apneas":self.fn_apneas
         }
 
     @property
@@ -113,6 +114,8 @@ class Evaluate:
 
                 if pd:
                     predicted_current_apnea = True
+        if predicted_current_apnea and in_apnea:
+            tp += 1
         return tp
 
 
@@ -144,6 +147,32 @@ class Evaluate:
         if not ground_truth_in_predicted and in_predicted_apnea:
             fp +=1
         return fp
+
+    @property
+    def fn_apneas(self):
+
+        predicted_this_apnea = False
+        fn = 0
+
+        for gt, pd in zip(self.ground_truth, self.predictionsBool):
+
+            if gt and not predicted_this_apnea:
+                if pd:
+                    predicted_this_apnea = True
+            elif gt and predicted_this_apnea:
+                continue
+            elif not gt and predicted_this_apnea:
+                predicted_this_apnea = False
+            elif not gt and not predicted_this_apnea:
+                fn += 1
+
+        if gt and not predicted_this_apnea:
+            fn += 1
+
+        return fn
+
+
+
 
     def get_predictions_as_df(self, predictions):
 

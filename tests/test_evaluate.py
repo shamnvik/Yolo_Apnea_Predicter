@@ -82,3 +82,10 @@ class TestEvaluate(TestCase):
         two_fp = evaluate.Evaluate(np.array([1,1,1,0,0,0,1,0,1,1])\
                                           ,[0,0,0,1,0,1,1,1,0,0], self.apnea_types, 0)
         self.assertEqual(two_fp.fp_apneas, 2)
+
+    def test_fn_apneas(self):
+        no_fn = evaluate.Evaluate(np.array([0, 1, 0]), [0, 1, 1], self.apnea_types, 0)
+        self.assertEqual(no_fn.fp_apneas, 0)
+
+        one_fn = evaluate.Evaluate(np.array([0, 1, 0]), [0, 0, 1], self.apnea_types, 0)
+        self.assertEqual(one_fn.fp_apneas, 1)
