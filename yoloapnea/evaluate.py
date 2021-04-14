@@ -1,4 +1,4 @@
-from sklearn.metrics import f1_score,recall_score
+from sklearn.metrics import f1_score,recall_score,matthews_corrcoef
 from sklearn.metrics import confusion_matrix,roc_curve,auc,accuracy_score,precision_score
 
 import matplotlib.pyplot as plt
@@ -28,7 +28,8 @@ class Evaluate:
             "recall":self.recall,
             "tp_apneas":self.tp_apneas,
             "fp_apneas":self.fp_apneas,
-            "fn_apneas":self.fn_apneas
+            "fn_apneas":self.fn_apneas,
+            "MCC":self.mcc
         }
 
     @property
@@ -173,6 +174,9 @@ class Evaluate:
 
         return fn
 
+    @property
+    def mcc(self):
+        return matthews_corrcoef(self.ground_truth,self.predictionsBool)
 
 
 
