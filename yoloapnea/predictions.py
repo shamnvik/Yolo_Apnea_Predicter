@@ -175,11 +175,13 @@ class Predictions:
     def get_prediction_metrics(self):
         metrics = {}
 
-        metrics["prediction"] = self.get_array_statistics(self.predictions, self.last_predicted_index)
+        metrics["prediction"] = {"length": 3} #TODO placeholder metric
 
-        if self.ground_truth is not None:
-            metrics["ground_truth"] = self.get_array_statistics(self.ground_truth, self.ground_truth_length)
-            metrics["comparison"] = self.get_evaluation_metrics()
+        # metrics["prediction"] = self.get_array_statistics(self.predictions, self.last_predicted_index)
+        #
+        # if self.ground_truth is not None:
+        #     metrics["ground_truth"] = self.get_array_statistics(self.ground_truth, self.ground_truth_length)
+        #     metrics["comparison"] = self.get_evaluation_metrics()
 
         return metrics
 

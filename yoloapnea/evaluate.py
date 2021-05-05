@@ -32,6 +32,11 @@ class Evaluate:
             "MCC":self.mcc
         }
 
+
+    @property
+    def predictions_as_df(self):
+        return self.get_predictions_as_df(self.predictions)
+
     @property
     def f1(self):
         return f1_score(self.ground_truth,self.predictionsBool)
