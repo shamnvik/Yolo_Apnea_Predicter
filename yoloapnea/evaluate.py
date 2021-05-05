@@ -187,7 +187,7 @@ class Evaluate:
 
     def get_predictions_as_df(self, predictions):
 
-        indicators = (predictions > self.threshold).astype(int)
+        indicators = (predictions > 0).astype(int)
 
         in_event = False
         starts = []
